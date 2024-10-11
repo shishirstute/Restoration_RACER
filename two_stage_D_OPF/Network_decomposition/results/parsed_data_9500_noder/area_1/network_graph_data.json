@@ -1,0 +1,35 @@
+{
+    "directed": false,
+    "multigraph": false,
+    "graph": {},
+    "nodes": [
+        {
+            "basekV": 66.4,
+            "latitude": 46.6965308,
+            "longitude": -119.0696656,
+            "id": "sourcebus"
+        },
+        {
+            "basekV": 66.4,
+            "latitude": 46.6960952,
+            "longitude": -119.0701878,
+            "id": "hvmv115_hsb1"
+        }
+    ],
+    "links": [
+        {
+            "name": "hvmv_sub_hsb",
+            "element": "reactor",
+            "length_unit": 0,
+            "z_matrix_real": "[[0.001, 0, 0], [0, 0.001, 0], [0, 0, 0.001]]",
+            "z_matrix_imag": "[[0.001, 0, 0], [0, 0.001, 0], [0, 0, 0.001]]",
+            "length": 0.001,
+            "num_phases": 3,
+            "phases": "{'a', 'b', 'c'}",
+            "is_switch": false,
+            "is_open": false,
+            "source": "sourcebus",
+            "target": "hvmv115_hsb1"
+        }
+    ]
+}

@@ -1,0 +1,2 @@
+name,element,length_unit,z_matrix_real,z_matrix_imag,length,from_bus,to_bus,num_phases,phases,is_switch,is_open,base_kv_LL
+hvmv115_69sub,transformer,0,"[[0.001, 0, 0], [0, 0.001, 0], [0, 0, 0.001]]","[[0.001, 0, 0], [0, 0.001, 0], [0, 0, 0.001]]",0.001,hvmv115_hsb2,regxfmr_hvmv69sub1_lsb1,3,"{'b', 'c', 'a'}",False,False,69.0

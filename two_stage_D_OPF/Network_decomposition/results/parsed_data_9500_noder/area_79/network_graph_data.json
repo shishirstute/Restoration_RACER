@@ -1,0 +1,35 @@
+{
+    "directed": false,
+    "multigraph": false,
+    "graph": {},
+    "nodes": [
+        {
+            "basekV": 7.2,
+            "latitude": 46.60131286,
+            "longitude": -119.2482271,
+            "id": "l2801895"
+        },
+        {
+            "basekV": 7.2,
+            "latitude": 46.60088084,
+            "longitude": -119.2477052,
+            "id": "e182744"
+        }
+    ],
+    "links": [
+        {
+            "name": "ln5803255-1",
+            "element": "line",
+            "length_unit": 3,
+            "z_matrix_real": "[[0.0, 0.0, 0.0], [0.0, 1.6338162917567176, 0.0], [0.0, 0.0, 0.0]]",
+            "z_matrix_imag": "[[0.0, 0.0, 0.0], [0.0, 0.8968297096064779, 0.0], [0.0, 0.0, 0.0]]",
+            "length": 0.060959613,
+            "num_phases": 1,
+            "phases": "{'b'}",
+            "is_switch": false,
+            "is_open": false,
+            "source": "l2801895",
+            "target": "e182744"
+        }
+    ]
+}

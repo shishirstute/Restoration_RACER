@@ -1,0 +1,4 @@
+,name,numwindings,connected_from,connected_to
+2,reg2a,2,9,9r
+3,reg3a,2,25,25r
+5,reg3c,2,25,25r

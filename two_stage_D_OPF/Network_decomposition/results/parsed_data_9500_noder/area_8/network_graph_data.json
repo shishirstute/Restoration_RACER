@@ -1,0 +1,55 @@
+{
+    "directed": false,
+    "multigraph": false,
+    "graph": {},
+    "nodes": [
+        {
+            "basekV": 7.2,
+            "latitude": 46.62247972,
+            "longitude": -119.2047543,
+            "id": "regxfmr_hvmv11sub2_lsb"
+        },
+        {
+            "basekV": 7.2,
+            "latitude": 46.6233509,
+            "longitude": -119.2047543,
+            "id": "hvmv11sub2_lsb"
+        },
+        {
+            "basekV": 39.84,
+            "latitude": 46.62160852,
+            "longitude": -119.2047543,
+            "id": "hvmv69sub2_hsb"
+        }
+    ],
+    "links": [
+        {
+            "name": "hvmv69_11sub2",
+            "element": "transformer",
+            "length_unit": 0,
+            "z_matrix_real": "[[0.001, 0, 0], [0, 0.001, 0], [0, 0, 0.001]]",
+            "z_matrix_imag": "[[0.001, 0, 0], [0, 0.001, 0], [0, 0, 0.001]]",
+            "length": 0.001,
+            "num_phases": 3,
+            "phases": "{'a', 'b', 'c'}",
+            "is_switch": false,
+            "is_open": false,
+            "source": "regxfmr_hvmv11sub2_lsb",
+            "target": "hvmv69sub2_hsb"
+        },
+        {
+            "name": "feeder_reg2c",
+            "element": "transformer",
+            "length_unit": 0,
+            "z_matrix_real": "[[0, 0, 0], [0, 0, 0], [0, 0, 0.001]]",
+            "z_matrix_imag": "[[0, 0, 0], [0, 0, 0], [0, 0, 0.001]]",
+            "length": 0.001,
+            "num_phases": 1,
+            "phases": "{'c'}",
+            "is_switch": false,
+            "is_open": false,
+            "source": "regxfmr_hvmv11sub2_lsb",
+            "target": "hvmv11sub2_lsb"
+        }
+    ]
+}

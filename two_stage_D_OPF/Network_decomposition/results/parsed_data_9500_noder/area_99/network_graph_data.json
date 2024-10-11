@@ -1,0 +1,14 @@
+{
+    "directed": false,
+    "multigraph": false,
+    "graph": {},
+    "nodes": [
+        {
+            "basekV": 0.28,
+            "latitude": 46.6045,
+            "longitude": -119.1955,
+            "id": "m2001-ess2"
+        }
+    ],
+    "links": []
+}
