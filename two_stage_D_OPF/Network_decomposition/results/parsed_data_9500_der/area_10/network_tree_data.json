@@ -5,15 +5,15 @@
     "nodes": [
         {
             "basekV": 39.84,
-            "latitude": 46.679107,
-            "longitude": -119.2401583,
-            "id": "hvmv69s2s3_2"
-        },
-        {
-            "basekV": 39.84,
             "latitude": 46.62073734,
             "longitude": -119.2059553,
             "id": "hvmv69s2s3_1"
+        },
+        {
+            "basekV": 39.84,
+            "latitude": 46.679107,
+            "longitude": -119.2401583,
+            "id": "hvmv69s2s3_2"
         }
     ],
     "links": [
@@ -29,8 +29,8 @@
             "is_switch": false,
             "is_open": false,
             "base_kv_LL": 69.0,
-            "source": "hvmv69s2s3_2",
-            "target": "hvmv69s2s3_1"
+            "source": "hvmv69s2s3_1",
+            "target": "hvmv69s2s3_2"
         }
     ]
 }

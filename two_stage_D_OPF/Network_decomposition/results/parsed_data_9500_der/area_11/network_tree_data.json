@@ -10,16 +10,16 @@
             "id": "regxfmr_hvmv11sub3_lsb"
         },
         {
-            "basekV": 39.84,
-            "latitude": 46.6799782,
-            "longitude": -119.2404194,
-            "id": "hvmv69sub3_hsb"
-        },
-        {
             "basekV": 7.2,
             "latitude": 46.68172058,
             "longitude": -119.2409416,
             "id": "hvmv11sub3_lsb"
+        },
+        {
+            "basekV": 39.84,
+            "latitude": 46.6799782,
+            "longitude": -119.2404194,
+            "id": "hvmv69sub3_hsb"
         }
     ],
     "links": [

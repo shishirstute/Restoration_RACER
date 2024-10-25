@@ -1,0 +1,126 @@
+{
+    "directed": false,
+    "multigraph": false,
+    "graph": {},
+    "nodes": [
+        {
+            "id": "hvmv11sub1_lsb"
+        },
+        {
+            "id": "hvmv_sub1_48332"
+        },
+        {
+            "id": "d5710794-3_int"
+        },
+        {
+            "id": "hvmv69sub1_hsb"
+        },
+        {
+            "id": "regxfmr_hvmv11sub1_lsb"
+        },
+        {
+            "id": "area_3area_4"
+        },
+        {
+            "id": "area_4area_5"
+        }
+    ],
+    "links": [
+        {
+            "name": "hvmv_sub_connector",
+            "element": "line",
+            "length_unit": 0.0,
+            "z_matrix_real": "[[0.001, 0.0, 0.0], [0.0, 0.001, 0.0], [0.0, 0.0, 0.001]]",
+            "z_matrix_imag": "[[0.01, 0.0, 0.0], [0.0, 0.01, 0.0], [0.0, 0.0, 0.01]]",
+            "length": 0.001,
+            "num_phases": 3,
+            "phases": "{'b', 'c', 'a'}",
+            "is_switch": false,
+            "is_open": false,
+            "base_kv_LL": 12.47,
+            "line_unit": NaN,
+            "source": "hvmv11sub1_lsb",
+            "target": "hvmv_sub1_48332"
+        },
+        {
+            "name": "feeder_reg1c",
+            "element": "transformer",
+            "length_unit": 0.0,
+            "z_matrix_real": "[[0, 0, 0], [0, 0, 0], [0, 0, 0.001]]",
+            "z_matrix_imag": "[[0, 0, 0], [0, 0, 0], [0, 0, 0.001]]",
+            "length": 0.001,
+            "num_phases": 1,
+            "phases": "{'c'}",
+            "is_switch": false,
+            "is_open": false,
+            "base_kv_LL": 12.47,
+            "line_unit": NaN,
+            "source": "hvmv11sub1_lsb",
+            "target": "regxfmr_hvmv11sub1_lsb"
+        },
+        {
+            "name": "ln5710794-3",
+            "element": "line",
+            "length_unit": 3.0,
+            "z_matrix_real": "[[0.2141620120958426, 0.055795673327478965, 0.057163579603184064], [0.055795673327478965, 0.21213109768802996, 0.056089218740818465], [0.057163579603184064, 0.056089218740818465, 0.2148008926065125]]",
+            "z_matrix_imag": "[[0.6349571372299505, 0.2748695351570142, 0.2465275827538739], [0.2748695351570142, 0.6523748665904011, 0.2909196961107396], [0.2465275827538739, 0.2909196961107396, 0.6295435753335943]]",
+            "length": 0.019436038,
+            "num_phases": 3,
+            "phases": "{'b', 'c', 'a'}",
+            "is_switch": false,
+            "is_open": false,
+            "base_kv_LL": 12.47,
+            "line_unit": NaN,
+            "source": "hvmv_sub1_48332",
+            "target": "d5710794-3_int"
+        },
+        {
+            "name": "d5710794-3_int_area_4area_5",
+            "element": "line",
+            "length_unit": NaN,
+            "z_matrix_real": "[[0.001, 0.0, 0.0], [0.0, 0.001, 0.0], [0.0, 0.0, 0.001]]",
+            "z_matrix_imag": "[[0.001, 0.0, 0.0], [0.0, 0.001, 0.0], [0.0, 0.0, 0.001]]",
+            "length": 0.001,
+            "num_phases": 3,
+            "phases": "{'b', 'c', 'a'}",
+            "is_switch": false,
+            "is_open": false,
+            "base_kv_LL": 12.47,
+            "line_unit": 3.0,
+            "source": "d5710794-3_int",
+            "target": "area_4area_5"
+        },
+        {
+            "name": "hvmv69_11sub1",
+            "element": "transformer",
+            "length_unit": 0.0,
+            "z_matrix_real": "[[0.001, 0, 0], [0, 0.001, 0], [0, 0, 0.001]]",
+            "z_matrix_imag": "[[0.001, 0, 0], [0, 0.001, 0], [0, 0, 0.001]]",
+            "length": 0.001,
+            "num_phases": 3,
+            "phases": "{'b', 'c', 'a'}",
+            "is_switch": false,
+            "is_open": false,
+            "base_kv_LL": 12.47,
+            "line_unit": NaN,
+            "source": "hvmv69sub1_hsb",
+            "target": "regxfmr_hvmv11sub1_lsb"
+        },
+        {
+            "name": "area_3area_4_hvmv69sub1_hsb",
+            "element": "line",
+            "length_unit": NaN,
+            "z_matrix_real": "[[0.001, 0.0, 0.0], [0.0, 0.001, 0.0], [0.0, 0.0, 0.001]]",
+            "z_matrix_imag": "[[0.001, 0.0, 0.0], [0.0, 0.001, 0.0], [0.0, 0.0, 0.001]]",
+            "length": 0.001,
+            "num_phases": 3,
+            "phases": "{'b', 'c', 'a'}",
+            "is_switch": false,
+            "is_open": false,
+            "base_kv_LL": 12.47,
+            "line_unit": 3.0,
+            "source": "hvmv69sub1_hsb",
+            "target": "area_3area_4"
+        }
+    ]
+}

@@ -20,9 +20,6 @@ transformer_data_path = current_dir + f"\\..\\Data\\{test_case_name}\\transforme
 normally_open_components_file_path = current_dir + f"\\..\\Data\\{test_case_name}\\normally_open_components.csv"
 circuit_data_json_file_path = current_dir + f"\\..\\Data\\{test_case_name}\\circuit_data.json"
 
-
-
-
 bus_data_df = pd.read_csv(bus_data_path, index_col=0)
 branch_data_df = pd.read_csv(branch_data_path)
 load_data_df = pd.read_csv(load_data_path).fillna(" ")
@@ -156,6 +153,14 @@ first_stage_normally_open_components_df = deepcopy(normally_open_components_df) 
 result_dir = current_dir + f"\\results\\{test_case_name}\\first_stage"
 os.makedirs(result_dir, exist_ok = True)
 
+# this is to make sure that in base condition with all sectionalizers on , tie switch are off, arrage branch data based on their topology order, just to cope with how Lindist is working
+first_stage_branch_data_df_sectionalizer_only = first_stage_branch_data_df[first_stage_branch_data_df["is_open"] == False]
+G = nx.from_pandas_edgelist(first_stage_branch_data_df_sectionalizer_only, source = 'from_bus', target = 'to_bus', edge_attr = True)
+tree_edge_list = list(nx.dfs_edges(G, source='area_1')) # assumes area_1 as substation, if npt change it
+for (fr_bus, to_bus) in tree_edge_list:
+    first_stage_branch_data_df.loc[(first_stage_branch_data_df["from_bus"] == to_bus) & (first_stage_branch_data_df["to_bus"] == fr_bus),["from_bus","to_bus"]] = first_stage_branch_data_df.loc[(first_stage_branch_data_df["from_bus"] == to_bus) & (first_stage_branch_data_df["to_bus"] == fr_bus), ["to_bus","from_bus"]].values
+
+
 first_stage_bus_df.to_csv(result_dir + r"\bus_data.csv", index = False) # saving bus data
 first_stage_branch_data_df.to_csv(result_dir + r"\pdelements_data.csv", index = False) # saving pdelements data
 first_stage_normally_open_components_df.to_csv(result_dir + r"\normally_open_components.csv", index = False) # saving normally open components data
@@ -169,7 +174,7 @@ with open(result_dir + r"/circuit_data.json",'w') as circuit_data_file:
 ## now  for network graph data json
 first_stage_branch_data_df = first_stage_branch_data_df[first_stage_branch_data_df["is_open"] == False] # to get only sectionalizers
 
-G = nx.from_pandas_edgelist(first_stage_branch_data_df, source = 'from_bus', target = 'to_bus', edge_attr = True) # graph creation from pandas pdelements
+G = nx.from_pandas_edgelist(first_stage_branch_data_df, source = 'from_bus', target = 'to_bus', edge_attr = True,create_using=nx.DiGraph()) # graph creation from pandas pdelements
 
 for index, row in first_stage_bus_df.iterrows():  # adding attributes to graph
     if pd.Series(index).isin(list(G.nodes)).any(): # just to add attributes of bus present only in pdeleents data
@@ -185,7 +190,11 @@ with open(result_dir + r"\network_tree_data.json", 'w') as json_file: # saving t
 # getting network_graph_data.json
 # its same as network_tree_data.json since I have stored all information in tree
 # since in Lindist, data is fetched using index from json, it won't be problem if I add extra other attributes
-network_graph_json_object = json.dumps(first_stage_network_tree_data_json, indent=4)
+first_stage_network_graph_data_json = nx.node_link_data(G.to_undirected())
+network_graph_json_object = json.dumps(first_stage_network_graph_data_json, indent=4)
 with open(result_dir + r"\network_graph_data.json", 'w') as json_file: # saving to json file
     json_file.write(network_graph_json_object)
+
+
+
 

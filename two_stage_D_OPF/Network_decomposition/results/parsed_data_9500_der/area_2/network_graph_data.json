@@ -4,16 +4,16 @@
     "graph": {},
     "nodes": [
         {
-            "basekV": 66.4,
-            "latitude": 46.6956596,
-            "longitude": -119.07071,
-            "id": "hvmv115_hsb2"
-        },
-        {
             "basekV": 39.84,
             "latitude": 46.695224,
             "longitude": -119.0712322,
             "id": "regxfmr_hvmv69sub1_lsb1"
+        },
+        {
+            "basekV": 66.4,
+            "latitude": 46.6956596,
+            "longitude": -119.07071,
+            "id": "hvmv115_hsb2"
         }
     ],
     "links": [
@@ -29,8 +29,8 @@
             "is_switch": false,
             "is_open": false,
             "base_kv_LL": 69.0,
-            "source": "hvmv115_hsb2",
-            "target": "regxfmr_hvmv69sub1_lsb1"
+            "source": "regxfmr_hvmv69sub1_lsb1",
+            "target": "hvmv115_hsb2"
         }
     ]
 }

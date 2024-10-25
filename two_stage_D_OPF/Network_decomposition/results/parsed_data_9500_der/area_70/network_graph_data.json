@@ -11,12 +11,6 @@
         },
         {
             "basekV": 7.2,
-            "latitude": 46.75840094,
-            "longitude": -119.231714,
-            "id": "l3010580"
-        },
-        {
-            "basekV": 7.2,
             "latitude": 46.7587167,
             "longitude": -119.2291403,
             "id": "e182726"
@@ -26,6 +20,12 @@
             "latitude": 46.75867506,
             "longitude": -119.2292712,
             "id": "l2766744"
+        },
+        {
+            "basekV": 7.2,
+            "latitude": 46.75840094,
+            "longitude": -119.231714,
+            "id": "l3010580"
         },
         {
             "basekV": 7.2,
@@ -63,21 +63,6 @@
             "target": "m1027038"
         },
         {
-            "name": "ln5744364-1",
-            "element": "line",
-            "length_unit": 3,
-            "z_matrix_real": "[[0.0, 0.0, 0.0], [0.0, 1.1223015188793084, 0.0], [0.0, 0.0, 0.0]]",
-            "z_matrix_imag": "[[0.0, 0.0, 0.0], [0.0, 0.8963648536512114, 0.0], [0.0, 0.0, 0.0]]",
-            "length": 0.021452463,
-            "num_phases": 1,
-            "phases": "{'b'}",
-            "is_switch": false,
-            "is_open": false,
-            "base_kv_LL": 12.47,
-            "source": "l3010580",
-            "target": "m1027036"
-        },
-        {
             "name": "ln5958705-1",
             "element": "line",
             "length_unit": 3,
@@ -106,6 +91,21 @@
             "base_kv_LL": 12.47,
             "source": "l2766744",
             "target": "m1027038"
+        },
+        {
+            "name": "ln5744364-1",
+            "element": "line",
+            "length_unit": 3,
+            "z_matrix_real": "[[0.0, 0.0, 0.0], [0.0, 1.1223015188793084, 0.0], [0.0, 0.0, 0.0]]",
+            "z_matrix_imag": "[[0.0, 0.0, 0.0], [0.0, 0.8963648536512114, 0.0], [0.0, 0.0, 0.0]]",
+            "length": 0.021452463,
+            "num_phases": 1,
+            "phases": "{'b'}",
+            "is_switch": false,
+            "is_open": false,
+            "base_kv_LL": 12.47,
+            "source": "l3010580",
+            "target": "m1027036"
         },
         {
             "name": "ln5472396-1",

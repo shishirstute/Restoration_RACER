@@ -1,0 +1,4 @@
+,name,numwindings,connected_from,connected_to
+1294,vreg4_a,2,regxfmr_190-7361,190-7361
+1295,vreg4_b,2,regxfmr_190-7361,190-7361
+1296,vreg4_c,2,regxfmr_190-7361,190-7361

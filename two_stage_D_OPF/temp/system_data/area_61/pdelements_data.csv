@@ -1,0 +1,2 @@
+name,element,length_unit,z_matrix_real,z_matrix_imag,length,from_bus,to_bus,num_phases,phases,is_switch,is_open,base_kv_LL,line_unit
+area_60area_61_m1142-lng1,line,,"[[0.001, 0.0, 0.0], [0.0, 0.001, 0.0], [0.0, 0.0, 0.001]]","[[0.001, 0.0, 0.0], [0.0, 0.001, 0.0], [0.0, 0.0, 0.001]]",0.001,area_60area_61,m1142-lng1,3,"{'b', 'c', 'a'}",False,False,12.47,3.0
