@@ -5,7 +5,7 @@ import re
 import json
 from copy import deepcopy
 
-test_case_name = "parsed_data_9500_der"
+test_case_name = "parsed_data_ieee123"
 current_dir = os.path.dirname(__file__)
 
 bus_data_path = current_dir + f"\\..\\Data\\{test_case_name}\\bus_data.csv" # bus data path
@@ -20,7 +20,7 @@ transformer_data_path = current_dir + f"\\..\\Data\\{test_case_name}\\transforme
 normally_open_components_file_path = current_dir + f"\\..\\Data\\{test_case_name}\\normally_open_components.csv"
 circuit_data_json_file_path = current_dir + f"\\..\\Data\\{test_case_name}\\circuit_data.json"
 
-bus_data_df = pd.read_csv(bus_data_path, index_col=0)
+bus_data_df = pd.read_csv(bus_data_path)
 branch_data_df = pd.read_csv(branch_data_path)
 load_data_df = pd.read_csv(load_data_path).fillna(" ")
 DERS_data_df = pd.read_csv(DERS_data_path).fillna(" ") # loads DERS data
@@ -28,9 +28,17 @@ transformer_data_df = pd.read_csv(transformer_data_path).fillna(" ") # loads tra
 normally_open_components_df = pd.read_csv(normally_open_components_file_path).fillna(" ")
 circuit_data_json = json.load(open(circuit_data_json_file_path))
 
+## making bus name, from bus, to bus as string, as Lindist will produce error with assuming floating sometime instead of integer bus
+bus_data_df["name"] = bus_data_df["name"].astype(str)
+branch_data_df["name"] = branch_data_df["name"].astype(str)
+branch_data_df["from_bus"] = branch_data_df["from_bus"].astype(str)
+branch_data_df["to_bus"] = branch_data_df["to_bus"].astype(str)
+DERS_data_df["name"] = DERS_data_df["name"].astype(str)
+DERS_data_df["connected_bus"] = DERS_data_df["connected_bus"].astype(str)
+load_data_df["bus"] = load_data_df["bus"].astype(str)
+normally_open_components_df["normally_open_components"] = normally_open_components_df["normally_open_components"].astype(str)
 
-
-
+bus_data_df = bus_data_df.set_index("name") # make name as index
 G = nx.from_pandas_edgelist(branch_data_df, source = 'from_bus', target = 'to_bus', edge_attr = True) # graph creation from pandas pdelements
 
 for index, row in bus_data_df.iterrows():  # adding attributes to graph
@@ -91,7 +99,7 @@ for area in areas_list_generator:
 
     # getting circuit data.json
     # note this substation value needs to be replaced by parent bus for the given area which is obtained doing first stage optimization(reconfiguration)
-    areas_dict[f"area_{area_index}_circuit_data_json"] = {"substation": "sourcebus", "basekV_LL_circuit":H.nodes[list(area)[0]]['basekV']} # saving baseKV for that area and substation
+    areas_dict[f"area_{area_index}_circuit_data_json"] = {"substation": circuit_data_json["substation"], "basekV_LL_circuit":H.nodes[list(area)[0]]['basekV']} # saving baseKV for that area and substation
     json_object = json.dumps(areas_dict[f"area_{area_index}_circuit_data_json"], indent = 4)
     with open(result_dir + r"/circuit_data.json",'w') as circuit_data_file:
         circuit_data_file.write(json_object)

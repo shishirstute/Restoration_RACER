@@ -4,10 +4,10 @@
     "graph": {},
     "nodes": [
         {
-            "id": "e192860"
+            "id": "m1209817"
         },
         {
-            "id": "m1209817"
+            "id": "e192860"
         },
         {
             "id": "l2801909"
@@ -37,10 +37,7 @@
             "id": "d5513564-1_int"
         },
         {
-            "id": "area_4area_5"
-        },
-        {
-            "id": "area_5area_13"
+            "id": "area_13area_5"
         }
     ],
     "links": [
@@ -57,24 +54,8 @@
             "is_open": false,
             "base_kv_LL": 12.47,
             "line_unit": NaN,
-            "source": "e192860",
-            "target": "m1209817"
-        },
-        {
-            "name": "area_4area_5_e192860",
-            "element": "line",
-            "length_unit": NaN,
-            "z_matrix_real": "[[0.001, 0.0, 0.0], [0.0, 0.001, 0.0], [0.0, 0.0, 0.001]]",
-            "z_matrix_imag": "[[0.001, 0.0, 0.0], [0.0, 0.001, 0.0], [0.0, 0.0, 0.001]]",
-            "length": 0.001,
-            "num_phases": 3,
-            "phases": "{'b', 'c', 'a'}",
-            "is_switch": false,
-            "is_open": false,
-            "base_kv_LL": 12.47,
-            "line_unit": 3.0,
-            "source": "e192860",
-            "target": "area_4area_5"
+            "source": "m1209817",
+            "target": "e192860"
         },
         {
             "name": "ln5742828-1",
@@ -221,20 +202,20 @@
             "target": "d5513564-1_int"
         },
         {
-            "name": "d5513564-1_int_area_5area_13",
+            "name": "area_13area_5_d5513564-1_int",
             "element": "line",
             "length_unit": NaN,
             "z_matrix_real": "[[0.001, 0.0, 0.0], [0.0, 0.001, 0.0], [0.0, 0.0, 0.001]]",
             "z_matrix_imag": "[[0.001, 0.0, 0.0], [0.0, 0.001, 0.0], [0.0, 0.0, 0.001]]",
             "length": 0.001,
             "num_phases": 3,
-            "phases": "{'b', 'c', 'a'}",
+            "phases": "{'a', 'c', 'b'}",
             "is_switch": false,
             "is_open": false,
             "base_kv_LL": 12.47,
             "line_unit": 3.0,
             "source": "d5513564-1_int",
-            "target": "area_5area_13"
+            "target": "area_13area_5"
         }
     ]
 }

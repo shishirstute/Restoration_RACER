@@ -4,19 +4,19 @@
     "graph": {},
     "nodes": [
         {
-            "id": "hvmv69sub2_hsb"
+            "id": "regxfmr_hvmv11sub2_lsb"
         },
         {
-            "id": "regxfmr_hvmv11sub2_lsb"
+            "id": "hvmv69sub2_hsb"
         },
         {
             "id": "hvmv11sub2_lsb"
         },
         {
-            "id": "area_7area_8"
+            "id": "area_9area_8"
         },
         {
-            "id": "area_8area_9"
+            "id": "area_8area_7"
         }
     ],
     "links": [
@@ -33,8 +33,24 @@
             "is_open": false,
             "base_kv_LL": 12.47,
             "line_unit": NaN,
+            "source": "regxfmr_hvmv11sub2_lsb",
+            "target": "hvmv69sub2_hsb"
+        },
+        {
+            "name": "hvmv69sub2_hsb_area_8area_7",
+            "element": "line",
+            "length_unit": NaN,
+            "z_matrix_real": "[[0.001, 0.0, 0.0], [0.0, 0.001, 0.0], [0.0, 0.0, 0.001]]",
+            "z_matrix_imag": "[[0.001, 0.0, 0.0], [0.0, 0.001, 0.0], [0.0, 0.0, 0.001]]",
+            "length": 0.001,
+            "num_phases": 3,
+            "phases": "{'a', 'c', 'b'}",
+            "is_switch": false,
+            "is_open": false,
+            "base_kv_LL": 12.47,
+            "line_unit": 3.0,
             "source": "hvmv69sub2_hsb",
-            "target": "regxfmr_hvmv11sub2_lsb"
+            "target": "area_8area_7"
         },
         {
             "name": "feeder_reg2c",
@@ -49,40 +65,24 @@
             "is_open": false,
             "base_kv_LL": 12.47,
             "line_unit": NaN,
-            "source": "regxfmr_hvmv11sub2_lsb",
-            "target": "hvmv11sub2_lsb"
-        },
-        {
-            "name": "hvmv11sub2_lsb_area_8area_9",
-            "element": "line",
-            "length_unit": NaN,
-            "z_matrix_real": "[[0.001, 0.0, 0.0], [0.0, 0.001, 0.0], [0.0, 0.0, 0.001]]",
-            "z_matrix_imag": "[[0.001, 0.0, 0.0], [0.0, 0.001, 0.0], [0.0, 0.0, 0.001]]",
-            "length": 0.001,
-            "num_phases": 3,
-            "phases": "{'b', 'c', 'a'}",
-            "is_switch": false,
-            "is_open": false,
-            "base_kv_LL": 12.47,
-            "line_unit": 3.0,
             "source": "hvmv11sub2_lsb",
-            "target": "area_8area_9"
+            "target": "regxfmr_hvmv11sub2_lsb"
         },
         {
-            "name": "area_7area_8_hvmv69sub2_hsb",
+            "name": "area_9area_8_hvmv11sub2_lsb",
             "element": "line",
             "length_unit": NaN,
             "z_matrix_real": "[[0.001, 0.0, 0.0], [0.0, 0.001, 0.0], [0.0, 0.0, 0.001]]",
             "z_matrix_imag": "[[0.001, 0.0, 0.0], [0.0, 0.001, 0.0], [0.0, 0.0, 0.001]]",
             "length": 0.001,
             "num_phases": 3,
-            "phases": "{'b', 'c', 'a'}",
+            "phases": "{'a', 'c', 'b'}",
             "is_switch": false,
             "is_open": false,
             "base_kv_LL": 12.47,
             "line_unit": 3.0,
-            "source": "area_7area_8",
-            "target": "hvmv69sub2_hsb"
+            "source": "area_9area_8",
+            "target": "hvmv11sub2_lsb"
         }
     ]
 }
