@@ -14,8 +14,8 @@ parsed_data_path = r"C:\Users\shishir\OneDrive - Washington State University (em
 
 # faults = [("area_1","area_2"),("area_2","area_3"),("area_3","area_4"),("area_4","area_5"),("area_3","area_6"),("area_8","area_9"),("area_5","area_13"),("area_30","area_31")]
 # faults = [("area_2","area_4")]
-faults = [("hvmv115_hsb2","regxfmr_hvmv69sub1_lsb1")]
-
+faults = [("m1047515","m1047513")]
+# faults = []
 rm = RestorationBase(parsed_data_path, faults = faults, base_kV_LL=4.16)
 
 rm.constraints_base(base_kV_LL=4.16,vmax=1.05,
@@ -26,16 +26,12 @@ rm.constraints_base(base_kV_LL=4.16,vmax=1.05,
 # rm.objective_load_and_switching()
 rm.objective_load_switching_and_der()
 
-rm_solved, results = rm.solve_model(solver='gurobi',save_results = True, solver_options = {"mipgap":0.000000005,"ScaleFlag":1})
+rm_solved, results = rm.solve_model(solver='gurobi',save_results = True, solver_options = {"mipgap":0.00000000,"ScaleFlag":1})
 # parent_child_area_df.to_csv(file_path_name)
 
+print("dectionalizers switch status",list(rm_solved.xij[_]() for _ in rm_solved.sectionalizing_switch_indices))
 print("virtual switch status",list(rm_solved.xij[_]() for _ in rm_solved.virtual_switch_indices)) # virtual switch status
 
 print("tie switch status",list(rm_solved.xij[_]() for _ in rm_solved.tie_switch_indices))
 
 print("total load served",rm_solved.restoration_objective())
-
-######## for d opf #####
-
-
-1+1

@@ -20,6 +20,9 @@
         },
         {
             "id": "area_3area_4"
+        },
+        {
+            "id": "area_4area_5"
         }
     ],
     "links": [
@@ -54,6 +57,22 @@
             "line_unit": NaN,
             "source": "hvmv_sub1_48332",
             "target": "d5710794-3_int"
+        },
+        {
+            "name": "d5710794-3_int_area_4area_5",
+            "element": "line",
+            "length_unit": NaN,
+            "z_matrix_real": "[[0.001, 0.0, 0.0], [0.0, 0.001, 0.0], [0.0, 0.0, 0.001]]",
+            "z_matrix_imag": "[[0.001, 0.0, 0.0], [0.0, 0.001, 0.0], [0.0, 0.0, 0.001]]",
+            "length": 0.001,
+            "num_phases": 3,
+            "phases": "{'c', 'a', 'b'}",
+            "is_switch": false,
+            "is_open": false,
+            "base_kv_LL": 12.47,
+            "line_unit": 3.0,
+            "source": "d5710794-3_int",
+            "target": "area_4area_5"
         },
         {
             "name": "hvmv69_11sub1",
@@ -95,7 +114,7 @@
             "z_matrix_imag": "[[0.001, 0.0, 0.0], [0.0, 0.001, 0.0], [0.0, 0.0, 0.001]]",
             "length": 0.001,
             "num_phases": 3,
-            "phases": "{'a', 'c', 'b'}",
+            "phases": "{'c', 'a', 'b'}",
             "is_switch": false,
             "is_open": false,
             "base_kv_LL": 12.47,

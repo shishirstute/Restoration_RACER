@@ -1,3 +1,2 @@
 name,element,length_unit,z_matrix_real,z_matrix_imag,length,from_bus,to_bus,num_phases,phases,is_switch,is_open,base_kv_LL,line_unit
-area_1area_40_m1089-dies1,line,,"[[0.001, 0.0, 0.0], [0.0, 0.001, 0.0], [0.0, 0.0, 0.001]]","[[0.001, 0.0, 0.0], [0.0, 0.001, 0.0], [0.0, 0.0, 0.001]]",0.001,area_1area_40,m1089-dies1,3,"{'a', 'c', 'b'}",False,False,12.47,3.0
-m1089-dies1_area_40area_39,line,,"[[0.001, 0.0, 0.0], [0.0, 0.001, 0.0], [0.0, 0.0, 0.001]]","[[0.001, 0.0, 0.0], [0.0, 0.001, 0.0], [0.0, 0.0, 0.001]]",0.001,m1089-dies1,area_40area_39,3,"{'a', 'c', 'b'}",False,False,12.47,3.0
+area_39area_40_m1089-dies1,line,,"[[0.001, 0.0, 0.0], [0.0, 0.001, 0.0], [0.0, 0.0, 0.001]]","[[0.001, 0.0, 0.0], [0.0, 0.001, 0.0], [0.0, 0.0, 0.001]]",0.001,area_39area_40,m1089-dies1,3,"{'c', 'a', 'b'}",False,False,12.47,3.0

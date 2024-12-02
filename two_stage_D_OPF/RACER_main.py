@@ -1,10 +1,5 @@
 from __future__ import annotations
 import os
-from ldrestoration import RestorationBase
-from copy import deepcopy
-import networkx as nx
-import pandas as pd
-import concurrent.futures
 
 from RACER_functions_list import first_stage_restoration,  enapp_preprocessing_for_second_stage, Area,result_saving, excel_writing_boundary_solutions, faults_line_to_area_mapping
 
@@ -32,11 +27,12 @@ os.makedirs(temp_result_file_dir, exist_ok=True)
 # faults = []
 
 # if want to give line faults (actual line from to )
-faults_list = [("hvmv115_hsb2","hvmv115_hsb2")]
+faults_list = [("m1047515","m1047513")]
+# faults_list = []
 faults = faults_line_to_area_mapping(areas_data_file_path, faults_list)
 
-objective_function_index = 2 # 1 for load objective only, 2 for load objective with switching operation minimization, 3 for DERs connected system with load restoration and switching minimization
-solver_options = {"mipgap": 0.00005, "ScaleFlag": 1} # option, note that with not smaller mip gap, switching operation might not work as expected, try to put very low mip gap, if not solved, increase mip gap
+objective_function_index = 3 # 1 for load objective only, 2 for load objective with switching operation minimization, 3 for DERs connected system with load restoration and switching minimization
+solver_options = {"mipgap": 0.0000, "ScaleFlag": 1} # option, note that with not smaller mip gap, switching operation might not work as expected, try to put very low mip gap, if not solved, increase mip gap
 psub_max = 15000 # be careful of this parameter
 
 

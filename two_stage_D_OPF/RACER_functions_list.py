@@ -10,8 +10,8 @@ import numpy as np
 
 
 def faults_line_to_area_mapping( areas_data_file_path, faults_list):
-    ''' this function takes failed line from to bus list ad returns areas that needs to be isolated
-    Basically takes any fault information and return the switch that needs toi be opened for fault clearance.'''
+    ''' this function takes failed line from to bus list and returns areas that needs to be isolated
+    Basically takes any fault information and return the switch that needs to be opened for fault clearance.'''
 
     areas_list = pd.read_csv(os.path.join(areas_data_file_path, "first_stage", "bus_data.csv"))["name"].to_list() # all areas name
     fault_bus_list = [_ for pair in faults_list for _ in pair] # fault bus name , bus associated with fault directly
@@ -64,7 +64,7 @@ def first_stage_restoration(parsed_data_path, faults, temp_result_file_dir, obje
             else:
                 DERs_area_activated_dict[connected_area] = row["kW_rated"]
 
-
+## note graph is made as digraph here to deal with error, double check this . No, this is when you use basis instead of cycle.
     Graph = nx.Graph() # for making graph of with switch which are closed, i.e. isolated areas will not present in graph Graph
     for edge, index in rm_solved.edge_indices_in_tree.items():
         if rm_solved.xij[index](): # if closed then add
@@ -207,7 +207,7 @@ def enapp_preprocessing_for_second_stage(areas_data_file_path, original_parsed_d
                 last_row["phases"] = {'b','c','a'}
                 last_row["is_switch"] = "False"
                 last_row["is_open"] = "False"
-                last_row["base_kv_LL"] = 12.47
+                last_row["base_kv_LL"] = 12.47 # note this, this is assumption, make it generic
                 pdelements_data_p = pd.concat([pdelements_data_p, pd.DataFrame([last_row])], ignore_index=True)
                 pdelements_data_p.to_csv(os.path.join(area_index_data_path_p, "pdelements_data.csv"),index = False)
 
