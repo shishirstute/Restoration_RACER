@@ -58,7 +58,7 @@ def plot_graph_plotly(bus_data_path, branch_data_path):
 
     edge_trace_not_switch = go.Scatter(
         x=edge_x, y=edge_y,
-        line=dict(width=0.5, color='red'),
+        line=dict(width=0.5, color='black'),
         hoverinfo='text',
         mode='lines')
 
@@ -81,7 +81,7 @@ def plot_graph_plotly(bus_data_path, branch_data_path):
 
     edge_trace_sectional_switch = go.Scatter(
         x=edge_x, y=edge_y,
-        line=dict(width=4, color='green'),
+        line=dict(width=3, color='green'),
         hoverinfo='text',
         mode='lines')
 
@@ -104,9 +104,33 @@ def plot_graph_plotly(bus_data_path, branch_data_path):
 
     edge_trace_tie_switch = go.Scatter(
         x=edge_x, y=edge_y,
-        line=dict(width=0.5, color='blue'),
+        line=dict(width=1, color='blue'),
         hoverinfo='text',
         mode='lines')
+
+
+# fault trace
+    edge_x = []
+    edge_y = []
+    fault_lines = [("hvmv69s1s2_1","hvmv69s1s2_2")]
+    # fault_lines = []
+    for _ in fault_lines:
+        x0, y0 = nodes_dict_pos[_[0]]
+        x1, y1 = nodes_dict_pos[_[1]]
+        edge_x.append(x0)
+        edge_x.append(x1)
+        edge_x.append(None)
+        edge_y.append(y0)
+        edge_y.append(y1)
+        edge_y.append(None)
+
+    fault_trace_tie_switch = go.Scatter(
+        x=edge_x, y=edge_y,
+        line=dict(width=4, color='red'),
+        hoverinfo='text',
+        mode='lines')
+
+
 
     node_x = []
     node_y = []
@@ -139,11 +163,13 @@ def plot_graph_plotly(bus_data_path, branch_data_path):
 
     node_trace.text = node_text  # change this to graph attributes
 
-    # Create a separate trace for node labels
+
+    # Create a separate trace for node labels, disable if you dont want label in node, write it as None as below
     node_label_trace = go.Scatter(
         x=node_x, y=node_y,
         mode='text',  # Use 'text' mode to display labels
-        text=[str(node.split("_")[1]) for node in G.nodes()],  # Labels for each node (you can modify this)
+        # text=[str(node.split("_")[1]) for node in G.nodes()],  # Labels for each node (you can modify this), uncomment it for aggregate
+        text=[node for node in G.nodes()],
         textposition="top center",  # Position labels on top of nodes
         hoverinfo='skip',  # Disable hover for the labels
         textfont=dict(size=12, color='black')  # Customize font size and color
@@ -152,7 +178,7 @@ def plot_graph_plotly(bus_data_path, branch_data_path):
 
 
 
-    fig = go.Figure(data=[edge_trace_not_switch, edge_trace_sectional_switch, node_trace,edge_trace_tie_switch,node_label_trace], #edge_trace_tie_switch
+    fig = go.Figure(data=[edge_trace_not_switch, edge_trace_sectional_switch, node_trace,edge_trace_tie_switch,fault_trace_tie_switch], #edge_trace_tie_switch, #node_label_trace
                     layout=go.Layout(
                         title='<br>Network graph made with Python',
                         titlefont_size=16,

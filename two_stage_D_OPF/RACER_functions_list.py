@@ -24,7 +24,8 @@ def faults_line_to_area_mapping( areas_data_file_path, faults_list):
 
     for index, row in pd.read_csv(os.path.join(areas_data_file_path, "first_stage", "pdelements_data.csv")).iterrows():
         if row["from_bus"] in fault_related_area_list or row["to_bus"] in fault_related_area_list:
-            faults_area_tuple_pair.append((row["from_bus"], row["to_bus"]))
+            if row["is_open"] == False: # this assumes that no fault occurs at tie switch, correct this later please to make more general
+                faults_area_tuple_pair.append((row["from_bus"], row["to_bus"]))
 
     return faults_area_tuple_pair
 
@@ -239,7 +240,7 @@ def enapp_preprocessing_for_second_stage(areas_data_file_path, original_parsed_d
                 last_row["phases"] = {'b', 'c', 'a'}
                 last_row["is_switch"] = "False"
                 last_row["is_open"] = "False"
-                last_row["base_kv_LL"] = 12.47
+                last_row["base_kv_LL"] = 12.47 # this also assumption here
 
                 pdelements_data = pd.concat([pdelements_data, pd.DataFrame([last_row])], ignore_index=True)
                 pdelements_data.to_csv(os.path.join(area_index_data_path, "pdelements_data.csv"), index = False)
@@ -461,6 +462,7 @@ class Area:  # area class for each area of second stage
 
 
     def appending_result_to_list(self):
+        ''' storing substation voltage, powers wrt iteration'''
         self.substation_Va_list.append(self.substation_Va)
         self.substation_Vb_list.append(self.substation_Vb)
         self.substation_Vc_list.append(self.substation_Vc)

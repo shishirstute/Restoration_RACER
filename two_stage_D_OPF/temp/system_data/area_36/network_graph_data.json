@@ -4,22 +4,22 @@
     "graph": {},
     "nodes": [
         {
-            "id": "d5860423-3_int"
-        },
-        {
             "id": "190-8593"
         },
         {
-            "id": "regxfmr_190-8593"
+            "id": "d5860423-3_int"
         },
         {
             "id": "m1047575"
         },
         {
-            "id": "area_35area_36"
+            "id": "regxfmr_190-8593"
         },
         {
-            "id": "area_36area_37"
+            "id": "area_37area_36"
+        },
+        {
+            "id": "area_36area_35"
         }
     ],
     "links": [
@@ -36,24 +36,8 @@
             "is_open": false,
             "base_kv_LL": 12.47,
             "line_unit": NaN,
-            "source": "d5860423-3_int",
-            "target": "190-8593"
-        },
-        {
-            "name": "area_35area_36_d5860423-3_int",
-            "element": "line",
-            "length_unit": NaN,
-            "z_matrix_real": "[[0.001, 0.0, 0.0], [0.0, 0.001, 0.0], [0.0, 0.0, 0.001]]",
-            "z_matrix_imag": "[[0.001, 0.0, 0.0], [0.0, 0.001, 0.0], [0.0, 0.0, 0.001]]",
-            "length": 0.001,
-            "num_phases": 3,
-            "phases": "{'c', 'a', 'b'}",
-            "is_switch": false,
-            "is_open": false,
-            "base_kv_LL": 12.47,
-            "line_unit": 3.0,
-            "source": "d5860423-3_int",
-            "target": "area_35area_36"
+            "source": "190-8593",
+            "target": "d5860423-3_int"
         },
         {
             "name": "vreg2_c",
@@ -72,6 +56,22 @@
             "target": "regxfmr_190-8593"
         },
         {
+            "name": "d5860423-3_int_area_36area_35",
+            "element": "line",
+            "length_unit": NaN,
+            "z_matrix_real": "[[0.001, 0.0, 0.0], [0.0, 0.001, 0.0], [0.0, 0.0, 0.001]]",
+            "z_matrix_imag": "[[0.001, 0.0, 0.0], [0.0, 0.001, 0.0], [0.0, 0.0, 0.001]]",
+            "length": 0.001,
+            "num_phases": 3,
+            "phases": "{'a', 'c', 'b'}",
+            "is_switch": false,
+            "is_open": false,
+            "base_kv_LL": 12.47,
+            "line_unit": 3.0,
+            "source": "d5860423-3_int",
+            "target": "area_36area_35"
+        },
+        {
             "name": "ln5860423-2",
             "element": "line",
             "length_unit": 3.0,
@@ -84,24 +84,24 @@
             "is_open": false,
             "base_kv_LL": 12.47,
             "line_unit": NaN,
-            "source": "regxfmr_190-8593",
-            "target": "m1047575"
+            "source": "m1047575",
+            "target": "regxfmr_190-8593"
         },
         {
-            "name": "m1047575_area_36area_37",
+            "name": "area_37area_36_m1047575",
             "element": "line",
             "length_unit": NaN,
             "z_matrix_real": "[[0.001, 0.0, 0.0], [0.0, 0.001, 0.0], [0.0, 0.0, 0.001]]",
             "z_matrix_imag": "[[0.001, 0.0, 0.0], [0.0, 0.001, 0.0], [0.0, 0.0, 0.001]]",
             "length": 0.001,
             "num_phases": 3,
-            "phases": "{'c', 'a', 'b'}",
+            "phases": "{'a', 'c', 'b'}",
             "is_switch": false,
             "is_open": false,
             "base_kv_LL": 12.47,
             "line_unit": 3.0,
             "source": "m1047575",
-            "target": "area_36area_37"
+            "target": "area_37area_36"
         }
     ]
 }

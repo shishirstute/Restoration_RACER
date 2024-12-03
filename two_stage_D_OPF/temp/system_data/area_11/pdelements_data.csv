@@ -1,7 +1,7 @@
 name,element,length_unit,z_matrix_real,z_matrix_imag,length,from_bus,to_bus,num_phases,phases,is_switch,is_open,base_kv_LL,line_unit
-hvmv69_11sub3,transformer,0.0,"[[0.001, 0, 0], [0, 0.001, 0], [0, 0, 0.001]]","[[0.001, 0, 0], [0, 0.001, 0], [0, 0, 0.001]]",0.001,hvmv69sub3_hsb,regxfmr_hvmv11sub3_lsb,3,"{'b', 'c', 'a'}",False,False,12.47,
-feeder_reg3a,transformer,0.0,"[[0.001, 0, 0], [0, 0, 0], [0, 0, 0]]","[[0.001, 0, 0], [0, 0, 0], [0, 0, 0]]",0.001,regxfmr_hvmv11sub3_lsb,hvmv11sub3_lsb,1,{'a'},False,False,12.47,
-feeder_reg3b,transformer,0.0,"[[0, 0, 0], [0, 0.001, 0], [0, 0, 0]]","[[0, 0, 0], [0, 0.001, 0], [0, 0, 0]]",0.001,regxfmr_hvmv11sub3_lsb,hvmv11sub3_lsb,1,{'b'},False,False,12.47,
-feeder_reg3c,transformer,0.0,"[[0, 0, 0], [0, 0, 0], [0, 0, 0.001]]","[[0, 0, 0], [0, 0, 0], [0, 0, 0.001]]",0.001,regxfmr_hvmv11sub3_lsb,hvmv11sub3_lsb,1,{'c'},False,False,12.47,
-area_10area_11_hvmv69sub3_hsb,line,,"[[0.001, 0.0, 0.0], [0.0, 0.001, 0.0], [0.0, 0.0, 0.001]]","[[0.001, 0.0, 0.0], [0.0, 0.001, 0.0], [0.0, 0.0, 0.001]]",0.001,area_10area_11,hvmv69sub3_hsb,3,"{'c', 'a', 'b'}",False,False,12.47,3.0
-hvmv11sub3_lsb_area_11area_12,line,,"[[0.001, 0.0, 0.0], [0.0, 0.001, 0.0], [0.0, 0.0, 0.001]]","[[0.001, 0.0, 0.0], [0.0, 0.001, 0.0], [0.0, 0.0, 0.001]]",0.001,hvmv11sub3_lsb,area_11area_12,3,"{'c', 'a', 'b'}",False,False,12.47,3.0
+hvmv69_11sub3,transformer,0.0,"[[0.001, 0, 0], [0, 0.001, 0], [0, 0, 0.001]]","[[0.001, 0, 0], [0, 0.001, 0], [0, 0, 0.001]]",0.001,regxfmr_hvmv11sub3_lsb,hvmv69sub3_hsb,3,"{'b', 'c', 'a'}",False,False,12.47,
+feeder_reg3a,transformer,0.0,"[[0.001, 0, 0], [0, 0, 0], [0, 0, 0]]","[[0.001, 0, 0], [0, 0, 0], [0, 0, 0]]",0.001,hvmv11sub3_lsb,regxfmr_hvmv11sub3_lsb,1,{'a'},False,False,12.47,
+feeder_reg3b,transformer,0.0,"[[0, 0, 0], [0, 0.001, 0], [0, 0, 0]]","[[0, 0, 0], [0, 0.001, 0], [0, 0, 0]]",0.001,hvmv11sub3_lsb,regxfmr_hvmv11sub3_lsb,1,{'b'},False,False,12.47,
+feeder_reg3c,transformer,0.0,"[[0, 0, 0], [0, 0, 0], [0, 0, 0.001]]","[[0, 0, 0], [0, 0, 0], [0, 0, 0.001]]",0.001,hvmv11sub3_lsb,regxfmr_hvmv11sub3_lsb,1,{'c'},False,False,12.47,
+area_12area_11_hvmv11sub3_lsb,line,,"[[0.001, 0.0, 0.0], [0.0, 0.001, 0.0], [0.0, 0.0, 0.001]]","[[0.001, 0.0, 0.0], [0.0, 0.001, 0.0], [0.0, 0.0, 0.001]]",0.001,area_12area_11,hvmv11sub3_lsb,3,"{'a', 'c', 'b'}",False,False,12.47,3.0
+hvmv69sub3_hsb_area_11area_10,line,,"[[0.001, 0.0, 0.0], [0.0, 0.001, 0.0], [0.0, 0.0, 0.001]]","[[0.001, 0.0, 0.0], [0.0, 0.001, 0.0], [0.0, 0.0, 0.001]]",0.001,hvmv69sub3_hsb,area_11area_10,3,"{'a', 'c', 'b'}",False,False,12.47,3.0

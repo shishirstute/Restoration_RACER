@@ -27,7 +27,8 @@ os.makedirs(temp_result_file_dir, exist_ok=True)
 # faults = []
 
 # if want to give line faults (actual line from to )
-faults_list = [("m1047515","m1047513")]
+# faults_list = [("m1047515","m1047513")]
+faults_list = [("hvmv69s1s2_1","hvmv69s1s2_2")]
 # faults_list = []
 faults = faults_line_to_area_mapping(areas_data_file_path, faults_list)
 
@@ -60,8 +61,9 @@ convergence = False # for convergence flag
 iteration = 0 # iteration count for second stage
 while convergence is False:
     iteration += 1
+    print(f"Macro iteration {iteration}")
     for key in area_object_list.keys():
-        print(f"Iteration{iteration} and area {key}")
+        # print(f"Iteration{iteration} and area {key}")
         area_object_list[key].second_stage_area_solve(tee = False, objective_function_index=2) # solving for given area
 
 

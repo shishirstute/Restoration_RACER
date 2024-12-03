@@ -4,16 +4,16 @@
     "graph": {},
     "nodes": [
         {
-            "id": "hvmv69s2s3_1"
-        },
-        {
             "id": "hvmv69s2s3_2"
         },
         {
-            "id": "area_7area_10"
+            "id": "hvmv69s2s3_1"
         },
         {
-            "id": "area_10area_11"
+            "id": "area_11area_10"
+        },
+        {
+            "id": "area_10area_7"
         }
     ],
     "links": [
@@ -30,40 +30,40 @@
             "is_open": false,
             "base_kv_LL": 69.0,
             "line_unit": NaN,
-            "source": "hvmv69s2s3_1",
-            "target": "hvmv69s2s3_2"
+            "source": "hvmv69s2s3_2",
+            "target": "hvmv69s2s3_1"
         },
         {
-            "name": "area_7area_10_hvmv69s2s3_1",
+            "name": "area_11area_10_hvmv69s2s3_2",
             "element": "line",
             "length_unit": NaN,
             "z_matrix_real": "[[0.001, 0.0, 0.0], [0.0, 0.001, 0.0], [0.0, 0.0, 0.001]]",
             "z_matrix_imag": "[[0.001, 0.0, 0.0], [0.0, 0.001, 0.0], [0.0, 0.0, 0.001]]",
             "length": 0.001,
             "num_phases": 3,
-            "phases": "{'c', 'a', 'b'}",
-            "is_switch": false,
-            "is_open": false,
-            "base_kv_LL": 12.47,
-            "line_unit": 3.0,
-            "source": "hvmv69s2s3_1",
-            "target": "area_7area_10"
-        },
-        {
-            "name": "hvmv69s2s3_2_area_10area_11",
-            "element": "line",
-            "length_unit": NaN,
-            "z_matrix_real": "[[0.001, 0.0, 0.0], [0.0, 0.001, 0.0], [0.0, 0.0, 0.001]]",
-            "z_matrix_imag": "[[0.001, 0.0, 0.0], [0.0, 0.001, 0.0], [0.0, 0.0, 0.001]]",
-            "length": 0.001,
-            "num_phases": 3,
-            "phases": "{'c', 'a', 'b'}",
+            "phases": "{'a', 'c', 'b'}",
             "is_switch": false,
             "is_open": false,
             "base_kv_LL": 12.47,
             "line_unit": 3.0,
             "source": "hvmv69s2s3_2",
-            "target": "area_10area_11"
+            "target": "area_11area_10"
+        },
+        {
+            "name": "hvmv69s2s3_1_area_10area_7",
+            "element": "line",
+            "length_unit": NaN,
+            "z_matrix_real": "[[0.001, 0.0, 0.0], [0.0, 0.001, 0.0], [0.0, 0.0, 0.001]]",
+            "z_matrix_imag": "[[0.001, 0.0, 0.0], [0.0, 0.001, 0.0], [0.0, 0.0, 0.001]]",
+            "length": 0.001,
+            "num_phases": 3,
+            "phases": "{'a', 'c', 'b'}",
+            "is_switch": false,
+            "is_open": false,
+            "base_kv_LL": 12.47,
+            "line_unit": 3.0,
+            "source": "hvmv69s2s3_1",
+            "target": "area_10area_7"
         }
     ]
 }
