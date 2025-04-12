@@ -1,0 +1,4 @@
+,name,numwindings,connected_from,connected_to
+1288,vreg2_a,2,regxfmr_190-8593,190-8593
+1289,vreg2_b,2,regxfmr_190-8593,190-8593
+1290,vreg2_c,2,regxfmr_190-8593,190-8593

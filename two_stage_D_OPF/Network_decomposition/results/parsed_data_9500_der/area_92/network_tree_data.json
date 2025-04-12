@@ -5,81 +5,9 @@
     "nodes": [
         {
             "basekV": 7.2,
-            "latitude": 46.60897628,
-            "longitude": -119.2028222,
-            "id": "m2001002"
-        },
-        {
-            "basekV": 7.2,
-            "latitude": 46.6067983,
-            "longitude": -119.2054332,
-            "id": "m2001007"
-        },
-        {
-            "basekV": 7.2,
-            "latitude": 46.60592712,
-            "longitude": -119.2064775,
-            "id": "m2001009"
-        },
-        {
-            "basekV": 7.2,
             "latitude": 46.6072339,
             "longitude": -119.204911,
             "id": "m2001006"
-        },
-        {
-            "basekV": 7.2,
-            "latitude": 46.6081051,
-            "longitude": -119.2038666,
-            "id": "m2001004"
-        },
-        {
-            "basekV": 7.2,
-            "latitude": 46.60636272,
-            "longitude": -119.2059553,
-            "id": "m2001008"
-        },
-        {
-            "basekV": 7.2,
-            "latitude": 46.60941188,
-            "longitude": -119.2023001,
-            "id": "d2001001_int"
-        },
-        {
-            "basekV": 7.2,
-            "latitude": 46.60505594,
-            "longitude": -119.2075219,
-            "id": "m2001011"
-        },
-        {
-            "basekV": 7.2,
-            "latitude": 46.60374914,
-            "longitude": -119.2090884,
-            "id": "m2001014"
-        },
-        {
-            "basekV": 7.2,
-            "latitude": 46.60462034,
-            "longitude": -119.2080441,
-            "id": "m2001012"
-        },
-        {
-            "basekV": 7.2,
-            "latitude": 46.60854068,
-            "longitude": -119.2033444,
-            "id": "m2001003"
-        },
-        {
-            "basekV": 7.2,
-            "latitude": 46.6076695,
-            "longitude": -119.2043888,
-            "id": "m2001005"
-        },
-        {
-            "basekV": 7.2,
-            "latitude": 46.60331356,
-            "longitude": -119.2096106,
-            "id": "m2001015"
         },
         {
             "basekV": 7.2,
@@ -89,12 +17,144 @@
         },
         {
             "basekV": 7.2,
+            "latitude": 46.60897628,
+            "longitude": -119.2028222,
+            "id": "m2001002"
+        },
+        {
+            "basekV": 7.2,
+            "latitude": 46.60505594,
+            "longitude": -119.2075219,
+            "id": "m2001011"
+        },
+        {
+            "basekV": 7.2,
+            "latitude": 46.60854068,
+            "longitude": -119.2033444,
+            "id": "m2001003"
+        },
+        {
+            "basekV": 7.2,
+            "latitude": 46.60331356,
+            "longitude": -119.2096106,
+            "id": "m2001015"
+        },
+        {
+            "basekV": 7.2,
+            "latitude": 46.60592712,
+            "longitude": -119.2064775,
+            "id": "m2001009"
+        },
+        {
+            "basekV": 7.2,
+            "latitude": 46.6076695,
+            "longitude": -119.2043888,
+            "id": "m2001005"
+        },
+        {
+            "basekV": 7.2,
+            "latitude": 46.60941188,
+            "longitude": -119.2023001,
+            "id": "d2001001_int"
+        },
+        {
+            "basekV": 7.2,
+            "latitude": 46.60374914,
+            "longitude": -119.2090884,
+            "id": "m2001014"
+        },
+        {
+            "basekV": 7.2,
+            "latitude": 46.6067983,
+            "longitude": -119.2054332,
+            "id": "m2001007"
+        },
+        {
+            "basekV": 7.2,
+            "latitude": 46.60462034,
+            "longitude": -119.2080441,
+            "id": "m2001012"
+        },
+        {
+            "basekV": 7.2,
             "latitude": 46.60418474,
             "longitude": -119.2085663,
             "id": "m2001013"
+        },
+        {
+            "basekV": 7.2,
+            "latitude": 46.60636272,
+            "longitude": -119.2059553,
+            "id": "m2001008"
+        },
+        {
+            "basekV": 7.2,
+            "latitude": 46.6081051,
+            "longitude": -119.2038666,
+            "id": "m2001004"
         }
     ],
     "links": [
+        {
+            "name": "ln2001006-1",
+            "element": "line",
+            "length_unit": 3,
+            "z_matrix_real": "[[0.0, 0.0, 0.0], [0.0, 1.1223015188793086, 0.0], [0.0, 0.0, 0.0]]",
+            "z_matrix_imag": "[[0.0, 0.0, 0.0], [0.0, 0.8963648536512115, 0.0], [0.0, 0.0, 0.0]]",
+            "length": 0.048230984,
+            "num_phases": 1,
+            "phases": "{'b'}",
+            "is_switch": false,
+            "is_open": false,
+            "base_kv_LL": 12.47,
+            "source": "m2001006",
+            "target": "m2001005"
+        },
+        {
+            "name": "ln2001007-1",
+            "element": "line",
+            "length_unit": 3,
+            "z_matrix_real": "[[0.0, 0.0, 0.0], [0.0, 1.1223015188793086, 0.0], [0.0, 0.0, 0.0]]",
+            "z_matrix_imag": "[[0.0, 0.0, 0.0], [0.0, 0.8963648536512115, 0.0], [0.0, 0.0, 0.0]]",
+            "length": 0.048230984,
+            "num_phases": 1,
+            "phases": "{'b'}",
+            "is_switch": false,
+            "is_open": false,
+            "base_kv_LL": 12.47,
+            "source": "m2001006",
+            "target": "m2001007"
+        },
+        {
+            "name": "ln2001010-1",
+            "element": "line",
+            "length_unit": 3,
+            "z_matrix_real": "[[0.0, 0.0, 0.0], [0.0, 1.1223015188793086, 0.0], [0.0, 0.0, 0.0]]",
+            "z_matrix_imag": "[[0.0, 0.0, 0.0], [0.0, 0.8963648536512115, 0.0], [0.0, 0.0, 0.0]]",
+            "length": 0.048230984,
+            "num_phases": 1,
+            "phases": "{'b'}",
+            "is_switch": false,
+            "is_open": false,
+            "base_kv_LL": 12.47,
+            "source": "m2001010",
+            "target": "m2001009"
+        },
+        {
+            "name": "ln2001011-1",
+            "element": "line",
+            "length_unit": 3,
+            "z_matrix_real": "[[0.0, 0.0, 0.0], [0.0, 1.1223015188793086, 0.0], [0.0, 0.0, 0.0]]",
+            "z_matrix_imag": "[[0.0, 0.0, 0.0], [0.0, 0.8963648536512115, 0.0], [0.0, 0.0, 0.0]]",
+            "length": 0.048230984,
+            "num_phases": 1,
+            "phases": "{'b'}",
+            "is_switch": false,
+            "is_open": false,
+            "base_kv_LL": 12.47,
+            "source": "m2001010",
+            "target": "m2001011"
+        },
         {
             "name": "ln2001002-1",
             "element": "line",
@@ -126,7 +186,7 @@
             "target": "m2001003"
         },
         {
-            "name": "ln2001007-1",
+            "name": "ln2001012-1",
             "element": "line",
             "length_unit": 3,
             "z_matrix_real": "[[0.0, 0.0, 0.0], [0.0, 1.1223015188793086, 0.0], [0.0, 0.0, 0.0]]",
@@ -137,11 +197,11 @@
             "is_switch": false,
             "is_open": false,
             "base_kv_LL": 12.47,
-            "source": "m2001007",
-            "target": "m2001006"
+            "source": "m2001011",
+            "target": "m2001012"
         },
         {
-            "name": "ln2001008-1",
+            "name": "ln2001004-1",
             "element": "line",
             "length_unit": 3,
             "z_matrix_real": "[[0.0, 0.0, 0.0], [0.0, 1.1223015188793086, 0.0], [0.0, 0.0, 0.0]]",
@@ -152,8 +212,23 @@
             "is_switch": false,
             "is_open": false,
             "base_kv_LL": 12.47,
-            "source": "m2001007",
-            "target": "m2001008"
+            "source": "m2001003",
+            "target": "m2001004"
+        },
+        {
+            "name": "ln2001015-1",
+            "element": "line",
+            "length_unit": 3,
+            "z_matrix_real": "[[0.0, 0.0, 0.0], [0.0, 1.1223015188793086, 0.0], [0.0, 0.0, 0.0]]",
+            "z_matrix_imag": "[[0.0, 0.0, 0.0], [0.0, 0.8963648536512115, 0.0], [0.0, 0.0, 0.0]]",
+            "length": 0.048230984,
+            "num_phases": 1,
+            "phases": "{'b'}",
+            "is_switch": false,
+            "is_open": false,
+            "base_kv_LL": 12.47,
+            "source": "m2001015",
+            "target": "m2001014"
         },
         {
             "name": "ln2001009-1",
@@ -171,51 +246,6 @@
             "target": "m2001008"
         },
         {
-            "name": "ln2001010-1",
-            "element": "line",
-            "length_unit": 3,
-            "z_matrix_real": "[[0.0, 0.0, 0.0], [0.0, 1.1223015188793086, 0.0], [0.0, 0.0, 0.0]]",
-            "z_matrix_imag": "[[0.0, 0.0, 0.0], [0.0, 0.8963648536512115, 0.0], [0.0, 0.0, 0.0]]",
-            "length": 0.048230984,
-            "num_phases": 1,
-            "phases": "{'b'}",
-            "is_switch": false,
-            "is_open": false,
-            "base_kv_LL": 12.47,
-            "source": "m2001009",
-            "target": "m2001010"
-        },
-        {
-            "name": "ln2001006-1",
-            "element": "line",
-            "length_unit": 3,
-            "z_matrix_real": "[[0.0, 0.0, 0.0], [0.0, 1.1223015188793086, 0.0], [0.0, 0.0, 0.0]]",
-            "z_matrix_imag": "[[0.0, 0.0, 0.0], [0.0, 0.8963648536512115, 0.0], [0.0, 0.0, 0.0]]",
-            "length": 0.048230984,
-            "num_phases": 1,
-            "phases": "{'b'}",
-            "is_switch": false,
-            "is_open": false,
-            "base_kv_LL": 12.47,
-            "source": "m2001006",
-            "target": "m2001005"
-        },
-        {
-            "name": "ln2001004-1",
-            "element": "line",
-            "length_unit": 3,
-            "z_matrix_real": "[[0.0, 0.0, 0.0], [0.0, 1.1223015188793086, 0.0], [0.0, 0.0, 0.0]]",
-            "z_matrix_imag": "[[0.0, 0.0, 0.0], [0.0, 0.8963648536512115, 0.0], [0.0, 0.0, 0.0]]",
-            "length": 0.048230984,
-            "num_phases": 1,
-            "phases": "{'b'}",
-            "is_switch": false,
-            "is_open": false,
-            "base_kv_LL": 12.47,
-            "source": "m2001004",
-            "target": "m2001003"
-        },
-        {
             "name": "ln2001005-1",
             "element": "line",
             "length_unit": 3,
@@ -227,38 +257,8 @@
             "is_switch": false,
             "is_open": false,
             "base_kv_LL": 12.47,
-            "source": "m2001004",
-            "target": "m2001005"
-        },
-        {
-            "name": "ln2001011-1",
-            "element": "line",
-            "length_unit": 3,
-            "z_matrix_real": "[[0.0, 0.0, 0.0], [0.0, 1.1223015188793086, 0.0], [0.0, 0.0, 0.0]]",
-            "z_matrix_imag": "[[0.0, 0.0, 0.0], [0.0, 0.8963648536512115, 0.0], [0.0, 0.0, 0.0]]",
-            "length": 0.048230984,
-            "num_phases": 1,
-            "phases": "{'b'}",
-            "is_switch": false,
-            "is_open": false,
-            "base_kv_LL": 12.47,
-            "source": "m2001011",
-            "target": "m2001010"
-        },
-        {
-            "name": "ln2001012-1",
-            "element": "line",
-            "length_unit": 3,
-            "z_matrix_real": "[[0.0, 0.0, 0.0], [0.0, 1.1223015188793086, 0.0], [0.0, 0.0, 0.0]]",
-            "z_matrix_imag": "[[0.0, 0.0, 0.0], [0.0, 0.8963648536512115, 0.0], [0.0, 0.0, 0.0]]",
-            "length": 0.048230984,
-            "num_phases": 1,
-            "phases": "{'b'}",
-            "is_switch": false,
-            "is_open": false,
-            "base_kv_LL": 12.47,
-            "source": "m2001011",
-            "target": "m2001012"
+            "source": "m2001005",
+            "target": "m2001004"
         },
         {
             "name": "ln2001014-1",
@@ -276,7 +276,7 @@
             "target": "m2001013"
         },
         {
-            "name": "ln2001015-1",
+            "name": "ln2001008-1",
             "element": "line",
             "length_unit": 3,
             "z_matrix_real": "[[0.0, 0.0, 0.0], [0.0, 1.1223015188793086, 0.0], [0.0, 0.0, 0.0]]",
@@ -287,8 +287,8 @@
             "is_switch": false,
             "is_open": false,
             "base_kv_LL": 12.47,
-            "source": "m2001014",
-            "target": "m2001015"
+            "source": "m2001007",
+            "target": "m2001008"
         },
         {
             "name": "ln2001013-1",

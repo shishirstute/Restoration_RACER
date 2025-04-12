@@ -5,15 +5,15 @@
     "nodes": [
         {
             "basekV": 66.4,
-            "latitude": 46.6960952,
-            "longitude": -119.0701878,
-            "id": "hvmv115_hsb1"
-        },
-        {
-            "basekV": 66.4,
             "latitude": 46.6965308,
             "longitude": -119.0696656,
             "id": "sourcebus"
+        },
+        {
+            "basekV": 66.4,
+            "latitude": 46.6960952,
+            "longitude": -119.0701878,
+            "id": "hvmv115_hsb1"
         }
     ],
     "links": [
@@ -29,8 +29,8 @@
             "is_switch": false,
             "is_open": false,
             "base_kv_LL": 115.0,
-            "source": "hvmv115_hsb1",
-            "target": "sourcebus"
+            "source": "sourcebus",
+            "target": "hvmv115_hsb1"
         }
     ]
 }

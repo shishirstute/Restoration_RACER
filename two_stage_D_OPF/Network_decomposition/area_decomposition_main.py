@@ -5,7 +5,7 @@ import re
 import json
 from copy import deepcopy
 
-test_case_name = "parsed_data_ieee123"
+test_case_name = "parsed_data_9500_der" #"parsed_data_ieee123"
 current_dir = os.path.dirname(__file__)
 
 bus_data_path = current_dir + f"\\..\\Data\\{test_case_name}\\bus_data.csv" # bus data path
@@ -58,9 +58,18 @@ areas_dict = {}
 area_index = 1
 
 areas_list_generator = list(nx.connected_components(H))
+
+
+
 for area in areas_list_generator:
     result_dir = current_dir + f"\\results\\{test_case_name}\\area_{area_index}"
     os.makedirs(result_dir, exist_ok = True)
+
+    # added on 4/11/2025 just to get buses list in each area
+    json_object = json.dumps(list(area), indent=4)
+    with open(result_dir + r"/bus_collection.json", 'w') as bus_collection_file:
+        bus_collection_file.write(json_object)
+
     #areas_dict[f"area_{area_index}"] = area
     # bus
     areas_dict[f"area_{area_index}_bus_df"] = bus_data_df.loc[list(area)] # getting bus data
@@ -160,6 +169,12 @@ first_stage_normally_open_components_df = deepcopy(normally_open_components_df) 
 
 result_dir = current_dir + f"\\results\\{test_case_name}\\first_stage"
 os.makedirs(result_dir, exist_ok = True)
+
+# added on 4/11/2025 just to get buses list in each area
+json_object = json.dumps([list(item) for item in areas_list_generator], indent=4)
+with open(result_dir + r"/bus_collection.json", 'w') as bus_collection_file:
+    bus_collection_file.write(json_object)
+
 
 # this is to make sure that in base condition with all sectionalizers on , tie switch are off, arrage branch data based on their topology order, just to cope with how Lindist is working
 first_stage_branch_data_df_sectionalizer_only = first_stage_branch_data_df[first_stage_branch_data_df["is_open"] == False]

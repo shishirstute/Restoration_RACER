@@ -1,0 +1,5 @@
+name,element,length_unit,z_matrix_real,z_matrix_imag,length,from_bus,to_bus,num_phases,phases,is_switch,is_open,base_kv_LL
+hvmv69_11sub2,transformer,0,"[[0.001, 0, 0], [0, 0.001, 0], [0, 0, 0.001]]","[[0.001, 0, 0], [0, 0.001, 0], [0, 0, 0.001]]",0.001,hvmv69sub2_hsb,regxfmr_hvmv11sub2_lsb,3,"{'b', 'c', 'a'}",False,False,12.47
+feeder_reg2a,transformer,0,"[[0.001, 0, 0], [0, 0, 0], [0, 0, 0]]","[[0.001, 0, 0], [0, 0, 0], [0, 0, 0]]",0.001,regxfmr_hvmv11sub2_lsb,hvmv11sub2_lsb,1,{'a'},False,False,12.47
+feeder_reg2b,transformer,0,"[[0, 0, 0], [0, 0.001, 0], [0, 0, 0]]","[[0, 0, 0], [0, 0.001, 0], [0, 0, 0]]",0.001,regxfmr_hvmv11sub2_lsb,hvmv11sub2_lsb,1,{'b'},False,False,12.47
+feeder_reg2c,transformer,0,"[[0, 0, 0], [0, 0, 0], [0, 0, 0.001]]","[[0, 0, 0], [0, 0, 0], [0, 0, 0.001]]",0.001,regxfmr_hvmv11sub2_lsb,hvmv11sub2_lsb,1,{'c'},False,False,12.47

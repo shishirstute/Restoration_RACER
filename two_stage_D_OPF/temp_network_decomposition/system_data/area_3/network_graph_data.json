@@ -1,0 +1,14 @@
+{
+    "directed": false,
+    "multigraph": false,
+    "graph": {},
+    "nodes": [
+        {
+            "basekV": 39.84,
+            "latitude": 46.69478842,
+            "longitude": -119.0717544,
+            "id": "hvmv69sub1_lsb2"
+        }
+    ],
+    "links": []
+}

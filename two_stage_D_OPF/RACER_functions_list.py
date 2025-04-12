@@ -30,14 +30,14 @@ def faults_line_to_area_mapping( areas_data_file_path, faults_list):
     return faults_area_tuple_pair
 
 
-def first_stage_restoration(parsed_data_path, faults, temp_result_file_dir, objective_function_index = 1,solver_options = None,psub_max = 15000):
+def first_stage_restoration(parsed_data_path, faults, temp_result_file_dir, objective_function_index = 1,solver_options = None, psub_a_max = 5000, psub_b_max = 5000, psub_c_max = 5000):
     ''' implements the first stage restoration, takes data, fault information and return parent child relation dictionary'''
 
     rm = RestorationBase(parsed_data_path, faults=faults, base_kV_LL=4.16) # for baseKv you can put anything since voltage does not matter that much as line are switches
 
-    rm.constraints_base(base_kV_LL=4.16, vmax=1.05,
-                        vmin=0.95,
-                        psub_max=psub_max) # be careful of psubstation maximum value
+    rm.constraints_base(base_kV_LL=66.4, vmax=1.05, vmin=0.95,\
+                        vsub_a = 1.05, vsub_b = 1.05, vsub_c = 1.05, \
+                        psub_a_max = psub_a_max, psub_b_max = psub_b_max, psub_c_max = psub_c_max) # be careful of psubstation maximum value
 
     if objective_function_index == 1: # for objective load only, switching optimization is not considered
         rm.objective_load_only()
@@ -376,14 +376,20 @@ class Area:  # area class for each area of second stage
         vsub_c = self.substation_Vc
         base_kV_LL = self.circuit_data_json["basekV_LL_circuit"] # baseKv
 
-        psub_max = 15000
-        if self.grid_formed:
-            psub_max = self.DERS_rating
+        psub_a_max = 5000
+        psub_b_max = 5000
+        psub_c_max = 5000
+        DER_rating_constr_flag = False # DER rating constraint won't be enforce if no island is formed.
+        DER_p_max = 0 # rating is made to 0.
+        if self.grid_formed: # if self grid is formed, psub_a_ma and b, c can be relaxed as der rating constraint will come into picture.
+            DER_p_max = self.DERS_rating
+            DER_rating_constr_flag = True
 
         rm = RestorationBase(parsed_data_path, base_kV_LL=base_kV_LL) # restoration model
-        rm.constraints_base(base_kV_LL=4.16, vmax=2,
-                            vmin=0,
-                            psub_max=psub_max, vsub_a=vsub_a, vsub_b=vsub_b, vsub_c=vsub_c) # constraints building
+        rm.constraints_base(base_kV_LL=4.16, vmax=2,\
+                            vmin=0, vsub_a=vsub_a, vsub_b=vsub_b, vsub_c=vsub_c,\
+                            psub_a_max = psub_a_max, psub_b_max = psub_b_max, psub_c_max = psub_c_max, DER_rating_constr_flag = DER_rating_constr_flag, DER_p_max = DER_p_max) # constraints building, DERs rating related virtual feeder constraint will be added if
+        # DER is activated and corresponding power is also passed
 
         self.network_graph = rm.network_graph  # just to take graph information
         self.loads = rm.loads  # load information
@@ -443,6 +449,19 @@ class Area:  # area class for each area of second stage
         parent_area_load_df.to_csv(os.path.join(parent_area.file_dir,"load_data.csv"),index=False)
 
 
+    def load_data_update(self,updated_load_data_dict, area_dir): # for second stage sequential load update i.e. transient one
+        ''' updating load data for each area for sdequential load update'''
+        load_df = pd.read_csv(os.path.join(area_dir, "load_data.csv"))  # parent area load df
+        for bus in load_df["bus"].to_list():
+            # load_df.loc[load_df["bus"] == bus, ["P1", "Q1", "P2", "Q2", "P3", "Q3"]] = updated_load_data_dict[bus]["P1"], updated_load_data_dict[bus]["Q1"], updated_load_data_dict[bus]["P2"],\
+            #     updated_load_data_dict[bus]["Q2"], updated_load_data_dict[bus]["P3"], updated_load_data_dict[bus]["Q3"]
+            load_df.loc[load_df["bus"] == bus, ["P1", "Q1", "P2", "Q2", "P3", "Q3"]] *= 2 # just to check
+        # saving load data file
+        load_df.to_csv(os.path.join(area_dir, "load_data.csv"), index=False)
+
+
+
+
     def convergence_test(self):
         ''' find maximum error for given area considering subsequence differences in shared variables'''
         error_V = max(abs(self.substation_Va- self.substation_Va_pre),abs(self.substation_Vb- self.substation_Vb_pre),abs(self.substation_Vc- self.substation_Vc_pre))
@@ -473,6 +492,20 @@ class Area:  # area class for each area of second stage
         self.substation_Qb_list.append(self.substation_Qb)
         self.substation_Qc_list.append(self.substation_Qc)
 
+
+# update first stage laod for each area using values obtained from Rafy
+def update_first_stage_area_load(areas_data_file_path, final_load_data_dict):
+    ''' update aggregated load in each equal to the final steady state value for first stage restoration '''
+    load_df = pd.read_csv(os.path.join(areas_data_file_path, "first_stage", "load_data.csv"))  # first stage laod df
+    for area in load_df["bus"].to_list():
+        area_bus_list = json.load(open(os.path.join(areas_data_file_path,area, "bus_collection.json"))) # getting list of bus for area
+        P1, Q1 = sum(final_load_data_dict[_]["P1"] for _ in area_bus_list), sum(final_load_data_dict[_]["Q1"] for _ in area_bus_list)
+        P2, Q2 = sum(final_load_data_dict[_]["P2"] for _ in area_bus_list), sum(final_load_data_dict[_]["Q2"] for _ in area_bus_list)
+        P3, Q3 = sum(final_load_data_dict[_]["P3"] for _ in area_bus_list), sum(final_load_data_dict[_]["Q3"] for _ in area_bus_list)
+        load_df.loc[load_df["bus"] == area, ["P1", "Q1", "P2", "Q2", "P3", "Q3"]] = P1, Q1, P2, Q2, P3, Q3
+
+    # saving load data file
+    load_df.to_csv(os.path.join(areas_data_file_path, "first_stage", "load_data.csv"), index=False)
 
 
 def result_saving(temp_result_file_dir,area_object_list):

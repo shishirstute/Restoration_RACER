@@ -1,0 +1,8 @@
+,name,kW_rated,connected_bus,phases
+0,steamgen1,3600.0,area_31,3
+1,diesel620,697.5,area_57,3
+2,lngengine100,112.5,area_61,3
+3,microturb-1,540.0,area_88,3
+4,lngengine1800,2025.0,area_52,3
+5,diesel590,663.3,area_40,3
+6,microturb-4,225.0,area_25,3

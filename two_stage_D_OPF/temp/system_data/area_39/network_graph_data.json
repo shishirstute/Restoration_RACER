@@ -241,9 +241,6 @@
             "id": "area_41area_39"
         },
         {
-            "id": "area_39area_38"
-        },
-        {
             "id": "area_39area_40"
         }
     ],
@@ -279,22 +276,6 @@
             "line_unit": NaN,
             "source": "n1134477",
             "target": "l3066814"
-        },
-        {
-            "name": "d5534969-2_int_area_39area_38",
-            "element": "line",
-            "length_unit": NaN,
-            "z_matrix_real": "[[0.001, 0.0, 0.0], [0.0, 0.001, 0.0], [0.0, 0.0, 0.001]]",
-            "z_matrix_imag": "[[0.001, 0.0, 0.0], [0.0, 0.001, 0.0], [0.0, 0.0, 0.001]]",
-            "length": 0.001,
-            "num_phases": 3,
-            "phases": "{'a', 'c', 'b'}",
-            "is_switch": false,
-            "is_open": false,
-            "base_kv_LL": 12.47,
-            "line_unit": 3.0,
-            "source": "d5534969-2_int",
-            "target": "area_39area_38"
         },
         {
             "name": "ln6247127-2",
