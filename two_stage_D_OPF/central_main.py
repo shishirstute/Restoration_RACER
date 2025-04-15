@@ -18,6 +18,8 @@ system_name = "parsed_data_9500_der" # "parsed_data_9500_der, parsed_data_ieee12
 
 parsed_data_path = current_working_dir + f"/Data/{system_name}"
 
+parsed_data_path = r"C:\Users\shishir\OneDrive - Washington State University (email.wsu.edu)\made_by_me\Restoration_RACER\two_stage_D_OPF\temp\system_data\area_2" # for testing
+
 # faults = [("area_1","area_2"),("area_2","area_3"),("area_3","area_4"),("area_4","area_5"),("area_3","area_6"),("area_8","area_9"),("area_5","area_13"),("area_30","area_31")]
 # faults = [("area_2","area_4")]
 # faults = [("d2000100_int","m2000200")]
@@ -27,12 +29,12 @@ faults = []
 rm = RestorationBase(parsed_data_path, faults = faults, base_kV_LL=4.16)
 
 rm.constraints_base(base_kV_LL=66.4,vmax=1.05,vmin=0.95, \
-                    vsub_a = 1.05, vsub_b = 1.05, vsub_c = 1.05, \
+                    vsub_a = 1.03, vsub_b = 1.03, vsub_c = 1.03, \
                     psub_a_max=5000, psub_b_max=5000, psub_c_max=5000) # use psub_a, psub_b, psub_c
 
 # rm.objective_load_only()
-# rm.objective_load_and_switching()
-rm.objective_load_switching_and_der() # alpha, beta, gamma are parameters to it.
+rm.objective_load_and_switching()
+# rm.objective_load_switching_and_der() # alpha, beta, gamma are parameters to it.
 
 rm_solved, results = rm.solve_model(solver='gurobi',save_results = True, solver_options = {"mipgap":0.00000000,"ScaleFlag":1})
 # parent_child_area_df.to_csv(file_path_name)

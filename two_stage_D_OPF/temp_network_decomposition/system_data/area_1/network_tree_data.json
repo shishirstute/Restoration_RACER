@@ -4,33 +4,33 @@
     "graph": {},
     "nodes": [
         {
-            "basekV": 66.4,
-            "latitude": 46.6965308,
-            "longitude": -119.0696656,
-            "id": "sourcebus"
+            "basekV": 2.4,
+            "latitude": 1500.0,
+            "longitude": 100.0,
+            "id": "150"
         },
         {
-            "basekV": 66.4,
-            "latitude": 46.6960952,
-            "longitude": -119.0701878,
-            "id": "hvmv115_hsb1"
+            "basekV": 2.4,
+            "latitude": 1500.0,
+            "longitude": 100.0,
+            "id": "150r"
         }
     ],
     "links": [
         {
-            "name": "hvmv_sub_hsb",
-            "element": "reactor",
+            "name": "reg1a",
+            "element": "transformer",
             "length_unit": 0,
             "z_matrix_real": "[[0.001, 0, 0], [0, 0.001, 0], [0, 0, 0.001]]",
             "z_matrix_imag": "[[0.001, 0, 0], [0, 0.001, 0], [0, 0, 0.001]]",
             "length": 0.001,
             "num_phases": 3,
-            "phases": "{'b', 'c', 'a'}",
+            "phases": "{'c', 'a', 'b'}",
             "is_switch": false,
             "is_open": false,
-            "base_kv_LL": 115.0,
-            "source": "sourcebus",
-            "target": "hvmv115_hsb1"
+            "base_kv_LL": 4.16,
+            "source": "150",
+            "target": "150r"
         }
     ]
 }

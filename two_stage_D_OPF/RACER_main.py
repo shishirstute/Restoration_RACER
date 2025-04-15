@@ -1,17 +1,23 @@
 from __future__ import annotations
 import os
+from pyomo.opt import TerminationCondition
 from concurrent.futures import ThreadPoolExecutor
 import shutil
+import pandas as pd
+from pyomo.environ import Var
 
 from RACER_functions_list import first_stage_restoration,  enapp_preprocessing_for_second_stage,\
-    Area,result_saving, excel_writing_boundary_solutions, faults_line_to_area_mapping, update_first_stage_area_load
+    Area,result_saving, excel_writing_boundary_solutions, faults_line_to_area_mapping, update_first_stage_area_load, voltage_quality_assess, plot_voltage_quality,\
+    track_pick_up_load, fix_restored_previous_load, calculate_restored_load, plot_power_restored
 
 current_working_dir = os.getcwd()
-system_name = "parsed_data_9500_der" # "parsed_data_9500_der, parsed_data_ieee123
+system_name = "parsed_data_ieee123" # "parsed_data_9500_der, parsed_data_ieee123
+
+fix_restored_load_flag = True
 
 # decomposed data file path permanent one
 decomposed_areas_data_file_path = current_working_dir + f"/Network_decomposition/results/{system_name}" # path of areas after decomposition of whole system
-
+decomposed_areas_data_file_path = os.path.abspath(decomposed_areas_data_file_path) # absolute path of decomposed data
 temp_dir_for_decomposed_data = os.path.abspath(current_working_dir + "/temp_network_decomposition")  # temporary directcory for temporary purpose
 
 try:
@@ -53,15 +59,17 @@ psub_max = 5000 # be careful of this parameter
 
 
 ## second stage
-tolerance = 0.0001 # tolerance for convergence in second stage
-max_iteration = 100
+tolerance = 0.005 # tolerance for convergence in second stage
+max_iteration = 50
+vmin = 0.95
+vmax = 1.05
 
 # input data from WVU
 # updating load file of each area with steady final value
 # final_load_data_dict = {} # final steady state value from Rafy
 # # this function will change laod value in file and update the file
 # update_first_stage_area_load(areas_data_file_path=areas_data_file_path, final_load_data_dict = final_load_data_dict)
-#
+
 
 # calling first stage restoration
 parent_child_area_dict, DERs_area_activated_dict = first_stage_restoration(parsed_data_path=os.path.join(areas_data_file_path,"first_stage"), \
@@ -72,78 +80,114 @@ parent_child_area_dict, DERs_area_activated_dict = first_stage_restoration(parse
 
 
 #########Second Stage OPF solving ######################################################################
-
-# calling function which does preprocessing: i,e, adding dummy bus and generating required files for Lindist using updated information
-enapp_preprocessing_for_second_stage(areas_data_file_path = areas_data_file_path, original_parsed_data_path = original_parsed_data_path, parent_child_area_dict  = parent_child_area_dict )
-
-
-area_object_list = {} # will contain area object with key as area number i.e. area_1 for area1.
-for area_index in parent_child_area_dict.keys():
-    area_dir = os.path.abspath(temp_areas_file_dir + f"/{area_index}") # temporary data path of area
-
-    area_object_list[f"{area_index}_o"] = Area(area_index = area_index, area_dir = area_dir, parent_child_dict = parent_child_area_dict,DERs_area_activated_dict = DERs_area_activated_dict) # calling class and initializing variables
+voltage_quality_measure_list = []
+restored_load_list = []
+pick_up_variable_dict = {} # {area_index:{bus_index: binary}}
+for restoration_step_index in range(6):
+    print("restoration step index is", restoration_step_index)
+    # calling function which does preprocessing: i,e, adding dummy bus and generating required files for Lindist using updated information
+    enapp_preprocessing_for_second_stage(areas_data_file_path = areas_data_file_path, original_parsed_data_path = original_parsed_data_path, parent_child_area_dict  = parent_child_area_dict )
 
 
-# Input data from WVU
-# updating load value of area using estimation model
-# updated_load_data_dict = {} # input from Rafy
-# for area_index in area_object_list.keys():
-#     area_dir = os.path.abspath(temp_areas_file_dir + f"/{area_index}".rstrip("_o")) # note that it changes data in temp folder file, temp_decomposed file can be used here as well if this function is defined before
-#     area_object_list[area_index].load_data_update(updated_load_data_dict = updated_load_data_dict, area_dir = area_dir)
+    area_object_list = {} # will contain area object with key as area number i.e. area_1 for area1.
+    for area_index in parent_child_area_dict.keys():
+        area_dir = os.path.abspath(temp_areas_file_dir + f"/{area_index}") # temporary data path of area
+
+        area_object_list[f"{area_index}_o"] = Area(area_index = area_index, area_dir = area_dir, \
+                                                   parent_child_dict = parent_child_area_dict,DERs_area_activated_dict = DERs_area_activated_dict) # calling class and initializing variables
 
 
-convergence = False # for convergence flag
-iteration = 0 # iteration count for second stage
-while convergence is False:
-    iteration += 1
-    print(f"Macro iteration {iteration}")
-    for key in area_object_list.keys():
-        # print(f"Iteration{iteration} and area {key}")
-
-        area_object_list[key].second_stage_area_solve(tee = False, objective_function_index=2) # solving for given area
-
-    # ## for parallel execution
-    # Helper function to solve for a given area
-    # def solve_area(key):
-    #     area_object_list[key].second_stage_area_solve(tee=True, objective_function_index=2)
-    #
-    # # Parallel execution using ThreadPoolExecutor
-    # with ThreadPoolExecutor() as executor:
-    #     executor.map(solve_area, area_object_list.keys())
+    # Input data from WVU
+    # updating load value of area using estimation model
+    updated_load_data_dict = {} # input from Rafy
+    for area_index in area_object_list.keys():
+        area_dir = os.path.abspath(temp_areas_file_dir + f"/{area_index}".rstrip("_o")) # note that it changes data in temp folder file, temp_decomposed file can be used here as well if this function is defined before
+        area_object_list[area_index].load_data_update(updated_load_data_dict = updated_load_data_dict, area_dir = area_dir, restoration_step_index = restoration_step_index) # here restoration_step_index if for changing parameters for testing
 
 
-        ## updating boundary variables after solving
-    for key in area_object_list.keys():
-        # print(key)
-        area_object_list[key].update_boundary_variables_after_opf()
-        area_object_list[key].appending_result_to_list()  # storing updated variable as list
+    convergence = False # for convergence flag
+    iteration = 0 # iteration count for second stage
+    while convergence is False:
+        iteration += 1
+        print(f"Macro iteration {iteration}")
+        for key in area_object_list.keys():
+            # print(f"Iteration{iteration} and area {key}")
+
+            area_object_list[key].second_stage_area_solve(vmin =vmin, vmax = vmax, tee = False, objective_function_index=2) # solving for given area
+            # rm = area_object_list[key].rm # getting model for given area
+
+            # fixing previous restored load
+            if fix_restored_load_flag:
+                if pick_up_variable_dict.keys():
+                    area_object_list[key].rm = fix_restored_previous_load(area_object_list[key].rm,  pick_up_variable_dict[key])
+
+            area_object_list[key].solved_model, results = area_object_list[key].rm.solve_model(solver='gurobi', tee=False)
+
+            # if infeasible in certain area, no load will be picked up, so make status of laod to 0
+            if results.solver.termination_condition == TerminationCondition.infeasible:
+                [setattr(var, 'fixed', False) for var in area_object_list[key].rm.model.component_data_objects(Var, descend_into=True) if var.fixed]
+                area_object_list[key].solved_model, results = area_object_list[key].rm.solve_model(solver='gurobi', tee=False)
+
+        # ## for parallel execution
+        # Helper function to solve for a given area
+        # def solve_area(key):
+        #     area_object_list[key].second_stage_area_solve(tee=True, objective_function_index=2)
+        #
+        # # Parallel execution using ThreadPoolExecutor
+        # with ThreadPoolExecutor() as executor:
+        #     executor.map(solve_area, area_object_list.keys())
 
 
-    ## exchange boundary variables
-    for key in area_object_list.keys():
-        parent_area_index = area_object_list[key].parent # getting parent index
-        if parent_area_index is not None: # if no parent is present , no need to exchange. Note that it can be done either from parent perspective or child perspective. here, I have done from parent perspective
-            parent_area_object = area_object_list[f"{parent_area_index}_o"]
-            area_object_list[key].boundary_variables_exchange(parent_area_object)
+            ## updating boundary variables after solving
+        for key in area_object_list.keys():
+            # print(key)
+            area_object_list[key].update_boundary_variables_after_opf()
+            # area_object_list[key].oscillation_control(iteration) # for controlling oscilallation but did not work.
+            area_object_list[key].appending_result_to_list()  # storing updated variable as list
 
 
-    ## convergence test
-    error_max = 0
-    for key in area_object_list.keys():
-        error = area_object_list[key].convergence_test()
-        if error > error_max:
-            error_max = error
-    print(f"maximum subsequence difference is {error_max}")
-    if error_max <= tolerance or iteration >= max_iteration:
-        convergence = True
+        ## exchange boundary variables
+        for key in area_object_list.keys():
+            parent_area_index = area_object_list[key].parent # getting parent index
+            if parent_area_index is not None: # if no parent is present , no need to exchange. Note that it can be done either from parent perspective or child perspective. here, I have done from parent perspective
+                parent_area_object = area_object_list[f"{parent_area_index}_o"]
+                area_object_list[key].boundary_variables_exchange(parent_area_object)
 
 
 
+        ## convergence test
+        error_max = 0
+        for key in area_object_list.keys():
+            error = area_object_list[key].convergence_test()
+            if error > error_max:
+                error_max = error
+        print(f"maximum subsequence difference is {error_max}")
+        if error_max <= tolerance or iteration >= max_iteration:
+            convergence = True
 
-result_saving(temp_result_file_dir,area_object_list) # saving voltage, load pick up result
 
-excel_writing_boundary_solutions(area_object_list = area_object_list, temp_result_file_dir = temp_result_file_dir) # getting boundary variables track wrt iterations
 
-# post processing solutions
-# write function to measure total load restored
-# write function to measure voltage quality (use substation voltage as 1 maybe. as 1.05 makes voltage as other node not that much less.
+    # keeping track of loads which are picked up
+    pick_up_variable_dict = track_pick_up_load(area_object_list)
+
+
+
+    result_saving(temp_result_file_dir,area_object_list) # saving voltage, load pick up result
+
+    excel_writing_boundary_solutions(area_object_list = area_object_list, temp_result_file_dir = temp_result_file_dir) # getting boundary variables track wrt iterations
+
+    # post processing solutions
+    # write function to measure total load restored
+    voltage_quality_measure = voltage_quality_assess(temp_result_file_dir, vmin)
+    voltage_quality_measure_list.append(voltage_quality_measure)
+
+    # power restored value
+    restored_load = calculate_restored_load(area_object_list, pick_up_variable_dict)
+    restored_load_list.append(restored_load)
+
+
+    # write function to measure voltage quality (use substation voltage as 1 maybe. as 1.05 makes voltage as other node not that much less.
+print("voltage quality value is", voltage_quality_measure_list)
+plot_voltage_quality( voltage_quality_measure_list)
+print("restored load value is",restored_load)
+plot_power_restored(restored_load_list)

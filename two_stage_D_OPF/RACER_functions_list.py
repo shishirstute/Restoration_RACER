@@ -7,6 +7,8 @@ import pandas as pd
 import shutil
 import json
 import numpy as np
+import matplotlib.pyplot as plt
+import time
 
 
 def faults_line_to_area_mapping( areas_data_file_path, faults_list):
@@ -318,9 +320,9 @@ class Area:  # area class for each area of second stage
         self.grid_formed = True if area_index in DERs_area_activated_dict.keys() else False # flag whether the given area's DER is activated or not if present
         self.DERS_rating = DERs_area_activated_dict[area_index] if area_index in DERs_area_activated_dict.keys() else 0
 
-        self.substation_Va = 1.05 # substation initialized voltage
-        self.substation_Vb = 1.05
-        self.substation_Vc = 1.05
+        self.substation_Va = 1.03 # substation initialized voltage
+        self.substation_Vb = 1.03
+        self.substation_Vc = 1.03
         self.substation_Pa = 0 # initialized power at substation injection
         self.substation_Pb = 0
         self.substation_Pc = 0
@@ -367,7 +369,7 @@ class Area:  # area class for each area of second stage
             setattr(self, f"{_}_Vc",1.05)
 
 
-    def second_stage_area_solve(self,tee, objective_function_index = 2):
+    def second_stage_area_solve(self,tee, vmin, vmax, objective_function_index = 2):
         ''' will solve for opf for given area'''
 
         parsed_data_path = self.file_dir # data path file
@@ -386,8 +388,8 @@ class Area:  # area class for each area of second stage
             DER_rating_constr_flag = True
 
         rm = RestorationBase(parsed_data_path, base_kV_LL=base_kV_LL) # restoration model
-        rm.constraints_base(base_kV_LL=4.16, vmax=2,\
-                            vmin=0, vsub_a=vsub_a, vsub_b=vsub_b, vsub_c=vsub_c,\
+        rm.constraints_base(base_kV_LL=4.16, vmax=vmax,\
+                            vmin=vmin, vsub_a=vsub_a, vsub_b=vsub_b, vsub_c=vsub_c,\
                             psub_a_max = psub_a_max, psub_b_max = psub_b_max, psub_c_max = psub_c_max, DER_rating_constr_flag = DER_rating_constr_flag, DER_p_max = DER_p_max) # constraints building, DERs rating related virtual feeder constraint will be added if
         # DER is activated and corresponding power is also passed
 
@@ -403,7 +405,7 @@ class Area:  # area class for each area of second stage
         else:
             rm.objective_load_switching_and_der()
 
-        self.solved_model, results = rm.solve_model(solver='gurobi', tee = tee)
+        self.rm = rm
 
 
     def update_boundary_variables_after_opf(self):
@@ -426,6 +428,7 @@ class Area:  # area class for each area of second stage
         self.substation_Qb = sum(solved_model.Qijb[_]() for _ in emerging_out_edge_index_list)
         self.substation_Qc = sum(solved_model.Qijc[_]() for _ in emerging_out_edge_index_list)
 
+
         # updating child bus voltage
         for _ in self.children_buses:
             solved_model_child_bus_index = solved_model.node_indices_in_tree[_]
@@ -444,21 +447,27 @@ class Area:  # area class for each area of second stage
         self.substation_Va = getattr(parent_area,f"{shared_bus}_Va") # updating child area substation voltage from parent area
         self.substation_Vb = getattr(parent_area, f"{shared_bus}_Vb")
         self.substation_Vc = getattr(parent_area, f"{shared_bus}_Vc")
+        time.sleep(0.1) # 0.1 ms sleep to deal with file open/close error
 
         # saving load data file
         parent_area_load_df.to_csv(os.path.join(parent_area.file_dir,"load_data.csv"),index=False)
 
 
-    def load_data_update(self,updated_load_data_dict, area_dir): # for second stage sequential load update i.e. transient one
+    def load_data_update(self,updated_load_data_dict, area_dir, restoration_step_index): # for second stage sequential load update i.e. transient one
         ''' updating load data for each area for sdequential load update'''
         load_df = pd.read_csv(os.path.join(area_dir, "load_data.csv"))  # parent area load df
         for bus in load_df["bus"].to_list():
             # load_df.loc[load_df["bus"] == bus, ["P1", "Q1", "P2", "Q2", "P3", "Q3"]] = updated_load_data_dict[bus]["P1"], updated_load_data_dict[bus]["Q1"], updated_load_data_dict[bus]["P2"],\
             #     updated_load_data_dict[bus]["Q2"], updated_load_data_dict[bus]["P3"], updated_load_data_dict[bus]["Q3"]
-            load_df.loc[load_df["bus"] == bus, ["P1", "Q1", "P2", "Q2", "P3", "Q3"]] *= 2 # just to check
+            load_df.loc[load_df["bus"] == bus, ["P1", "Q1", "P2", "Q2", "P3", "Q3"]] *= (2-0.2*restoration_step_index) # just to check
         # saving load data file
         load_df.to_csv(os.path.join(area_dir, "load_data.csv"), index=False)
 
+
+    def oscillation_control(self, iteration):
+        if iteration >= 5: # do only after 5 iterations
+            if self.substation_Pa_pre > self.substation_Pa: # if previous value is greater than current value, then chance of oscillation
+                self.substation_Pa = self.substation_Pa_pre *0.5 + self.substation_Pa *0.5
 
 
 
@@ -468,6 +477,7 @@ class Area:  # area class for each area of second stage
         error_P = max(abs(self.substation_Pa- self.substation_Pa_pre),abs(self.substation_Pb- self.substation_Pb_pre),abs(self.substation_Pc- self.substation_Pc_pre))
         error_Q = max(abs(self.substation_Qa - self.substation_Qa_pre), abs(self.substation_Qb - self.substation_Qb_pre), abs(self.substation_Qc - self.substation_Qc_pre))
         error = max(error_V,error_P, error_Q)
+        error = error_V # only voltage error convergence considered
         self.substation_Va_pre =  self.substation_Va
         self.substation_Vb_pre =  self.substation_Vb
         self.substation_Vc_pre = self.substation_Vc
@@ -491,6 +501,8 @@ class Area:  # area class for each area of second stage
         self.substation_Qa_list.append(self.substation_Qa)
         self.substation_Qb_list.append(self.substation_Qb)
         self.substation_Qc_list.append(self.substation_Qc)
+
+
 
 
 # update first stage laod for each area using values obtained from Rafy
@@ -527,6 +539,7 @@ def result_saving(temp_result_file_dir,area_object_list):
     result_df.to_csv(os.path.join(temp_result_file_dir,"bus_result.csv"),index=False) # saving result df
 
 
+
 def excel_writing_boundary_solutions(area_object_list, temp_result_file_dir):
     with pd.ExcelWriter(os.path.join(temp_result_file_dir,"boundary_variables_iterations.xlsx")) as writer:
         for key in area_object_list.keys():
@@ -535,3 +548,70 @@ def excel_writing_boundary_solutions(area_object_list, temp_result_file_dir):
                                "Qb":area_object_list[key].substation_Qb_list,"Qc":area_object_list[key].substation_Qc_list})
             df.to_excel(writer, sheet_name = area_object_list[key].substation_name)
 
+
+def voltage_quality_assess(temp_result_file_dir, vmin):
+    bus_result = pd.read_csv(os.path.join(temp_result_file_dir, "bus_result.csv"))
+    voltage_a = bus_result["Va"].to_list()
+    voltage_a = [_ for _ in voltage_a if _ > vmin]
+    voltage_b = bus_result["Vb"].to_list()
+    voltage_b = [_ for _ in voltage_b if _ > vmin]
+    voltage_c = bus_result["Vc"].to_list()
+    voltage_c = [_ for _ in voltage_c if _ > vmin]
+    deviation_from_reference = ((sum(abs(np.array(voltage_a) - 1))) + (sum(abs(np.array(voltage_b) - 1))) + (sum(abs(np.array(voltage_c) - 1))))/(len(voltage_a) + len(voltage_b) + len(voltage_c))*100
+    return deviation_from_reference
+
+def track_pick_up_load(area_object_list):
+    ''' will store pick up load if picked up in previous restoration step'''
+    pick_up_variable_dict = {} # {area_index:{bus_index: binary}}
+    for key in area_object_list.keys():
+        # area_index = key.rstrip("_o") # area index
+        area_index = key
+        pick_up_variable_dict[area_index] = {}
+        for _ in area_object_list[key].solved_model.node_indices_in_tree.keys():
+            if "area" not in _:
+                binary_pick_up = area_object_list[key].solved_model.si[area_object_list[key].solved_model.node_indices_in_tree[_]]()
+                if binary_pick_up == 1:
+                    pick_up_variable_dict[area_index][_]= binary_pick_up
+
+    return pick_up_variable_dict
+
+
+def calculate_restored_load(area_object_list, pick_up_variable_dict):
+    ''' calculate load restored in each restoration step'''
+    restored_load = []
+    for key in area_object_list.keys(): # iteration over areas
+        load = 0
+        for bus_id in pick_up_variable_dict[key].keys(): # iteation over buses picked up
+            pyomo_id = area_object_list[key].rm.model.node_indices_in_tree[bus_id]
+            load += area_object_list[key].rm.model.active_demand_each_node[pyomo_id] * pick_up_variable_dict[key][bus_id] # load present in given bus of given area restored
+        restored_load.append(load)
+
+    return sum(restored_load)
+
+
+def fix_restored_previous_load(rm,  pick_up_dict):
+    ''' fixing pick up load in previous iteration'''
+    model = rm.model
+    for _ in  pick_up_dict.keys():
+        bus_index_pyomo = model.node_indices_in_tree[_]
+        if pick_up_dict[_] == 1:
+            model.si[bus_index_pyomo].fix(1)
+    rm.model = model
+    return rm
+
+
+def plot_voltage_quality( voltage_quality_measure_list):
+    ''' plots voltage measure quality wrt iteration'''
+    plt.figure(figsize=(7, 4))
+    plt.plot(voltage_quality_measure_list)
+    plt.xlabel("#discrete time steps")
+    plt.ylabel("voltage quality measure")
+    plt.show()
+
+def plot_power_restored( restored_load_list):
+    ''' plots restored load wrt iteration'''
+    plt.figure(figsize=(7, 4))
+    plt.plot(restored_load_list)
+    plt.xlabel("#discrete time steps")
+    plt.ylabel("restored load")
+    plt.show()

@@ -4,37 +4,34 @@
     "graph": {},
     "nodes": [
         {
-            "id": "area_6area_7"
+            "id": "61s"
         },
         {
-            "id": "hvmv69sub2_lnb"
+            "id": "610"
         },
         {
-            "id": "area_7area_8"
-        },
-        {
-            "id": "area_7area_10"
+            "id": "area_4area_7"
         }
     ],
     "links": [
         {
-            "name": "area_6area_7_hvmv69sub2_lnb",
-            "element": "line",
-            "length_unit": NaN,
-            "z_matrix_real": "[[0.001, 0.0, 0.0], [0.0, 0.001, 0.0], [0.0, 0.0, 0.001]]",
-            "z_matrix_imag": "[[0.001, 0.0, 0.0], [0.0, 0.001, 0.0], [0.0, 0.0, 0.001]]",
+            "name": "xfm1",
+            "element": "transformer",
+            "length_unit": 0.0,
+            "z_matrix_real": "[[0.001, 0, 0], [0, 0.001, 0], [0, 0, 0.001]]",
+            "z_matrix_imag": "[[0.001, 0, 0], [0, 0.001, 0], [0, 0, 0.001]]",
             "length": 0.001,
             "num_phases": 3,
-            "phases": "{'a', 'c', 'b'}",
+            "phases": "{'c', 'a', 'b'}",
             "is_switch": false,
             "is_open": false,
-            "base_kv_LL": 12.47,
-            "line_unit": 3.0,
-            "source": "area_6area_7",
-            "target": "hvmv69sub2_lnb"
+            "base_kv_LL": 0.48,
+            "line_unit": NaN,
+            "source": "61s",
+            "target": "610"
         },
         {
-            "name": "hvmv69sub2_lnb_area_7area_8",
+            "name": "area_4area_7_61s",
             "element": "line",
             "length_unit": NaN,
             "z_matrix_real": "[[0.001, 0.0, 0.0], [0.0, 0.001, 0.0], [0.0, 0.0, 0.001]]",
@@ -46,24 +43,8 @@
             "is_open": false,
             "base_kv_LL": 12.47,
             "line_unit": 3.0,
-            "source": "hvmv69sub2_lnb",
-            "target": "area_7area_8"
-        },
-        {
-            "name": "hvmv69sub2_lnb_area_7area_10",
-            "element": "line",
-            "length_unit": NaN,
-            "z_matrix_real": "[[0.001, 0.0, 0.0], [0.0, 0.001, 0.0], [0.0, 0.0, 0.001]]",
-            "z_matrix_imag": "[[0.001, 0.0, 0.0], [0.0, 0.001, 0.0], [0.0, 0.0, 0.001]]",
-            "length": 0.001,
-            "num_phases": 3,
-            "phases": "{'a', 'c', 'b'}",
-            "is_switch": false,
-            "is_open": false,
-            "base_kv_LL": 12.47,
-            "line_unit": 3.0,
-            "source": "hvmv69sub2_lnb",
-            "target": "area_7area_10"
+            "source": "61s",
+            "target": "area_4area_7"
         }
     ]
 }

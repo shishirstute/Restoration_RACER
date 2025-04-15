@@ -1,1 +1,2 @@
 name,element,length_unit,z_matrix_real,z_matrix_imag,length,from_bus,to_bus,num_phases,phases,is_switch,is_open,base_kv_LL
+xfm1,transformer,0,"[[0.001, 0, 0], [0, 0.001, 0], [0, 0, 0.001]]","[[0.001, 0, 0], [0, 0.001, 0], [0, 0, 0.001]]",0.001,61s,610,3,"{'c', 'a', 'b'}",False,False,0.48

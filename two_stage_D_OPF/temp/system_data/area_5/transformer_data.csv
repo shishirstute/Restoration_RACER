@@ -1,1 +1,4 @@
 ,name,numwindings,connected_from,connected_to
+4,reg4a,2,160,160r
+6,reg4b,2,160,160r
+7,reg4c,2,160,160r
