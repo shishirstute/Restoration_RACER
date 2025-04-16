@@ -62,7 +62,7 @@ psub_max = 5000 # be careful of this parameter
 tolerance = 0.005 # tolerance for convergence in second stage
 max_iteration = 50
 vmin = 0.95
-vmax = 1.05
+vmax = 1.05  # note substation voltage is made lower than this slightly .
 
 # input data from WVU
 # updating load file of each area with steady final value
