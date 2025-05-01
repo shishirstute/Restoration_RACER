@@ -1,4 +1,2 @@
 ,name,numwindings,connected_from,connected_to
-2,reg2a,2,9,9r
-3,reg3a,2,25,25r
-5,reg3c,2,25,25r
+0,hvmv115_69sub,2,hvmv115_hsb2,regxfmr_hvmv69sub1_lsb1

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from ldrestoration import (DataLoader, 
+from ldrestoration import (DataLoader,
                            RestorationModel)
 
 def restoration_base(data_path: str, 
@@ -30,7 +30,7 @@ def restoration_base(data_path: str,
     data_object = DataLoader(data_path)
     
     # instantiate the restoration object. Provide faulted edges in (u,v) format, if available.
-    restoration_object = RestorationModel(data_object, faults=faults)
+    restoration_object = RestorationModel(data_object, faults=faults,psub_max = psub_max)
     
     # load the constraint sets -> base constraints set contains all the necessary constraints for restoration
     # provide necessary voltage limit values and substation reference voltage

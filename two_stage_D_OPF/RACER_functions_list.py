@@ -10,6 +10,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import time
 
+# calling model from Rafy
+from WSU_WVU_link import get_load_considering_PV_CLPU
 
 def faults_line_to_area_mapping( areas_data_file_path, faults_list):
     ''' this function takes failed line from to bus list and returns areas that needs to be isolated
@@ -29,7 +31,7 @@ def faults_line_to_area_mapping( areas_data_file_path, faults_list):
             if row["is_open"] == False: # this assumes that no fault occurs at tie switch, correct this later please to make more general
                 faults_area_tuple_pair.append((row["from_bus"], row["to_bus"]))
 
-    return faults_area_tuple_pair
+    return faults_area_tuple_pair, fault_related_area_list
 
 
 def first_stage_restoration(parsed_data_path, faults, temp_result_file_dir, objective_function_index = 1,solver_options = None, psub_a_max = 5000, psub_b_max = 5000, psub_c_max = 5000):
@@ -306,7 +308,7 @@ def enapp_preprocessing_for_second_stage(areas_data_file_path, original_parsed_d
 
 
 class Area:  # area class for each area of second stage
-    def __init__(self, area_index = None, area_dir = None, parent_child_dict = None,DERs_area_activated_dict = None): # area_index is area_1 and soon. area_dir is data path of updated area (i.e. after adding dummy bus based on parent child relation)
+    def __init__(self, area_index = None, area_dir = None, parent_child_dict = None,DERs_area_activated_dict = None, substation_Va = None, substation_Vb = None, substation_Vc = None): # area_index is area_1 and soon. area_dir is data path of updated area (i.e. after adding dummy bus based on parent child relation)
 
         self.circuit_data_json = json.load(open(os.path.join(area_dir, "circuit_data.json"))) # circuit data
         self.substation_name = self.circuit_data_json["substation"] # substation name for given area
@@ -320,9 +322,9 @@ class Area:  # area class for each area of second stage
         self.grid_formed = True if area_index in DERs_area_activated_dict.keys() else False # flag whether the given area's DER is activated or not if present
         self.DERS_rating = DERs_area_activated_dict[area_index] if area_index in DERs_area_activated_dict.keys() else 0
 
-        self.substation_Va = 1.03 # substation initialized voltage
-        self.substation_Vb = 1.03
-        self.substation_Vc = 1.03
+        self.substation_Va = substation_Va # substation initialized voltage
+        self.substation_Vb = substation_Vb
+        self.substation_Vc = substation_Vc
         self.substation_Pa = 0 # initialized power at substation injection
         self.substation_Pb = 0
         self.substation_Pc = 0
@@ -364,9 +366,9 @@ class Area:  # area class for each area of second stage
             # setattr(self, f"{_}_Qb",0)
             # setattr(self, f"{_}_Qc",0)
 
-            setattr(self, f"{_}_Va",1.05) # assigning voltage to shared bus child areas
-            setattr(self, f"{_}_Vb",1.05)
-            setattr(self, f"{_}_Vc",1.05)
+            setattr(self, f"{_}_Va",substation_Va) # assigning voltage to shared bus child areas
+            setattr(self, f"{_}_Vb",substation_Vb)
+            setattr(self, f"{_}_Vc",substation_Vc)
 
 
     def second_stage_area_solve(self,tee, vmin, vmax, objective_function_index = 2):
@@ -387,7 +389,7 @@ class Area:  # area class for each area of second stage
             DER_p_max = self.DERS_rating
             DER_rating_constr_flag = True
 
-        rm = RestorationBase(parsed_data_path, base_kV_LL=base_kV_LL) # restoration model
+        rm = RestorationBase(parsed_data_path, base_kV_LL=base_kV_LL, psub_max = psub_a_max+psub_b_max+psub_c_max) # restoration model
         rm.constraints_base(base_kV_LL=4.16, vmax=vmax,\
                             vmin=vmin, vsub_a=vsub_a, vsub_b=vsub_b, vsub_c=vsub_c,\
                             psub_a_max = psub_a_max, psub_b_max = psub_b_max, psub_c_max = psub_c_max, DER_rating_constr_flag = DER_rating_constr_flag, DER_p_max = DER_p_max) # constraints building, DERs rating related virtual feeder constraint will be added if
@@ -436,32 +438,62 @@ class Area:  # area class for each area of second stage
             setattr(self, f"{_}_Vb", np.sqrt(solved_model.Vib[solved_model_child_bus_index]()))
             setattr(self, f"{_}_Vc", np.sqrt(solved_model.Vic[solved_model_child_bus_index]()))
 
-    def boundary_variables_exchange(self,parent_area):
+    def boundary_variables_exchange(self,parent_area_object, update_model_flag = False):
         ''' now updating boundary voltage of given area from its parent area. also updating power of substation from given area to its parent area'''
 
         # self_area_load_df = pd.read_csv(os.path.join(self.file_dir,"load_data.csv"))
-        parent_area_load_df = pd.read_csv(os.path.join(parent_area.file_dir,"load_data.csv")) # parent area load df
+        parent_area_load_df = pd.read_csv(os.path.join(parent_area_object.file_dir,"load_data.csv")) # parent area load df
         shared_bus = self.substation_name # shared bus between given area and parent area
-        #updating load information on shared bus of parent area laod dataframe
-        parent_area_load_df.loc[parent_area_load_df["bus"] == shared_bus,["P1","Q1","P2","Q2","P3","Q3"]] = self.substation_Pa,self.substation_Qa,self.substation_Pb,self.substation_Qb,self.substation_Pc,self.substation_Qc
-        self.substation_Va = getattr(parent_area,f"{shared_bus}_Va") # updating child area substation voltage from parent area
-        self.substation_Vb = getattr(parent_area, f"{shared_bus}_Vb")
-        self.substation_Vc = getattr(parent_area, f"{shared_bus}_Vc")
-        time.sleep(0.1) # 0.1 ms sleep to deal with file open/close error
 
-        # saving load data file
-        parent_area_load_df.to_csv(os.path.join(parent_area.file_dir,"load_data.csv"),index=False)
+        self.substation_Va = getattr(parent_area_object,f"{shared_bus}_Va") # updating child area substation voltage from parent area
+        self.substation_Vb = getattr(parent_area_object, f"{shared_bus}_Vb")
+        self.substation_Vc = getattr(parent_area_object, f"{shared_bus}_Vc")
+        time.sleep(0.5) # 0.1 ms sleep to deal with file open/close error
 
 
-    def load_data_update(self,updated_load_data_dict, area_dir, restoration_step_index): # for second stage sequential load update i.e. transient one
+
+        if update_model_flag == True: # this is done to
+            # updating voltage for self area
+            self.rm.model.vsub_a.set_value(self.substation_Va)
+            self.rm.model.vsub_b.set_value(self.substation_Vb)
+            self.rm.model.vsub_c.set_value(self.substation_Vc)
+
+            # updating power for parent area
+            pyomo_index_in_parent_area = parent_area_object.rm.model.node_indices_in_tree[shared_bus]
+            parent_area_object.rm.model.P1[pyomo_index_in_parent_area].set_value(self.substation_Pa)
+            parent_area_object.rm.model.Q1[pyomo_index_in_parent_area].set_value(self.substation_Qa)
+            parent_area_object.rm.model.P2[pyomo_index_in_parent_area].set_value(self.substation_Pb)
+            parent_area_object.rm.model.Q2[pyomo_index_in_parent_area].set_value(self.substation_Qb)
+            parent_area_object.rm.model.P3[pyomo_index_in_parent_area].set_value(self.substation_Pc)
+            parent_area_object.rm.model.Q3[pyomo_index_in_parent_area].set_value(self.substation_Qc)
+
+            return self.rm, parent_area_object.rm # returning rm class
+        else:
+            # updating load information on shared bus of parent area laod dataframe
+            parent_area_load_df.loc[parent_area_load_df["bus"] == shared_bus, ["P1", "Q1", "P2", "Q2", "P3", "Q3"]] = self.substation_Pa, self.substation_Qa, self.substation_Pb, self.substation_Qb, self.substation_Pc, self.substation_Qc
+            # saving load data file
+            parent_area_load_df.to_csv(os.path.join(parent_area_object.file_dir, "load_data.csv"), index=False)
+
+
+
+
+
+    def load_data_update(self,updated_load_data_dict, area_dir, current_time_index): # for second stage sequential load update i.e. transient one
         ''' updating load data for each area for sdequential load update'''
         load_df = pd.read_csv(os.path.join(area_dir, "load_data.csv"))  # parent area load df
         for bus in load_df["bus"].to_list():
-            # load_df.loc[load_df["bus"] == bus, ["P1", "Q1", "P2", "Q2", "P3", "Q3"]] = updated_load_data_dict[bus]["P1"], updated_load_data_dict[bus]["Q1"], updated_load_data_dict[bus]["P2"],\
-            #     updated_load_data_dict[bus]["Q2"], updated_load_data_dict[bus]["P3"], updated_load_data_dict[bus]["Q3"]
-            load_df.loc[load_df["bus"] == bus, ["P1", "Q1", "P2", "Q2", "P3", "Q3"]] *= (2-0.2*restoration_step_index) # just to check
+            if "area" not in bus:
+                load_df.loc[load_df["bus"] == bus, ["P1", "Q1", "P2", "Q2", "P3", "Q3"]] = updated_load_data_dict[bus]["P1"], updated_load_data_dict[bus]["Q1"], updated_load_data_dict[bus]["P2"],\
+                    updated_load_data_dict[bus]["Q2"], updated_load_data_dict[bus]["P3"], updated_load_data_dict[bus]["Q3"]
+            elif "area" in bus:
+                load_df.loc[load_df["bus"] == bus, ["P1", "Q1", "P2", "Q2", "P3", "Q3"]] = 0,0,0,0,0,0
+            else:
+                raise ValueError("bus name is not in correct format")
+                # just for checking
+                # load_df.loc[load_df["bus"] == bus, ["P1", "Q1", "P2", "Q2", "P3", "Q3"]] *= (1.5-0.1*current_time_index) # just to check
         # saving load data file
         load_df.to_csv(os.path.join(area_dir, "load_data.csv"), index=False)
+
 
 
     def oscillation_control(self, iteration):
@@ -477,7 +509,7 @@ class Area:  # area class for each area of second stage
         error_P = max(abs(self.substation_Pa- self.substation_Pa_pre),abs(self.substation_Pb- self.substation_Pb_pre),abs(self.substation_Pc- self.substation_Pc_pre))
         error_Q = max(abs(self.substation_Qa - self.substation_Qa_pre), abs(self.substation_Qb - self.substation_Qb_pre), abs(self.substation_Qc - self.substation_Qc_pre))
         error = max(error_V,error_P, error_Q)
-        error = error_V # only voltage error convergence considered
+        # error = error_V # only voltage error convergence considered
         self.substation_Va_pre =  self.substation_Va
         self.substation_Vb_pre =  self.substation_Vb
         self.substation_Vc_pre = self.substation_Vc
@@ -552,7 +584,7 @@ def excel_writing_boundary_solutions(area_object_list, temp_result_file_dir):
 def voltage_quality_assess(temp_result_file_dir, vmin):
     bus_result = pd.read_csv(os.path.join(temp_result_file_dir, "bus_result.csv"))
     voltage_a = bus_result["Va"].to_list()
-    voltage_a = [_ for _ in voltage_a if _ > vmin]
+    voltage_a = [_ for _ in voltage_a if _ > vmin] # only greater than vmin bevcause for floating bus. voltage is by default vmin
     voltage_b = bus_result["Vb"].to_list()
     voltage_b = [_ for _ in voltage_b if _ > vmin]
     voltage_c = bus_result["Vc"].to_list()
@@ -563,6 +595,7 @@ def voltage_quality_assess(temp_result_file_dir, vmin):
 def track_pick_up_load(area_object_list):
     ''' will store pick up load if picked up in previous restoration step'''
     pick_up_variable_dict = {} # {area_index:{bus_index: binary}}
+    all_bus_index_pick_up_status_dict = {} #required for Rafy's input, {bus_index: status}
     for key in area_object_list.keys():
         # area_index = key.rstrip("_o") # area index
         area_index = key
@@ -572,32 +605,140 @@ def track_pick_up_load(area_object_list):
                 binary_pick_up = area_object_list[key].solved_model.si[area_object_list[key].solved_model.node_indices_in_tree[_]]()
                 if binary_pick_up == 1:
                     pick_up_variable_dict[area_index][_]= binary_pick_up
+                all_bus_index_pick_up_status_dict[_] = binary_pick_up # required for Rafy's input, where index is bus name.
 
-    return pick_up_variable_dict
+    return pick_up_variable_dict, all_bus_index_pick_up_status_dict
 
+def get_outage_restoration_time_index(bus_index_outage_restore_dict,all_bus_index_pick_up_status_dict, current_time_index):
+    ''' gives outage and restored time index based on previous value and current restoration results'''
+    for bus_index in all_bus_index_pick_up_status_dict.keys():
+        if all_bus_index_pick_up_status_dict[bus_index] == 0:
+            if bus_index_outage_restore_dict[bus_index]["restored_time_index"] == 0:
+                outage_time_index = bus_index_outage_restore_dict[bus_index]["outage_time_index"]
+                restoration_time_index = 0
+            else:
+                outage_time_index = current_time_index
+                restoration_time_index = 0
+        else:
+            outage_time_index = bus_index_outage_restore_dict[bus_index]["outage_time_index"]
 
-def calculate_restored_load(area_object_list, pick_up_variable_dict):
+            if bus_index_outage_restore_dict[bus_index]["outage_time_index"] == 0 and bus_index_outage_restore_dict[bus_index]["restored_time_index"] == 0:
+                restoration_time_index = 0
+            elif bus_index_outage_restore_dict[bus_index]["outage_time_index"] > 0 and bus_index_outage_restore_dict[bus_index]["restored_time_index"] == 0:
+                restoration_time_index = current_time_index
+            else:
+                restoration_time_index = bus_index_outage_restore_dict[bus_index]["restored_time_index"]
+        bus_index_outage_restore_dict[bus_index]["outage_time_index"] = outage_time_index
+        bus_index_outage_restore_dict[bus_index]["restored_time_index"] = restoration_time_index
+    return bus_index_outage_restore_dict # returning updated load data dict
+
+def calculate_restored_load(area_object_list, pick_up_variable_dict, original_load_data_dict):
     ''' calculate load restored in each restoration step'''
-    restored_load = []
+    restored_load_with_out_CLPU = [] # list of restored load for each area without CLPU consideration
+    restored_load_with_CLPU = [] # list of restored load for each area with CLPU consideration
     for key in area_object_list.keys(): # iteration over areas
-        load = 0
-        for bus_id in pick_up_variable_dict[key].keys(): # iteation over buses picked up
-            pyomo_id = area_object_list[key].rm.model.node_indices_in_tree[bus_id]
-            load += area_object_list[key].rm.model.active_demand_each_node[pyomo_id] * pick_up_variable_dict[key][bus_id] # load present in given bus of given area restored
-        restored_load.append(load)
+        load_without_CLPU = 0
+        load_with_CLPU = 0
 
-    return sum(restored_load)
+        # for bus_id in pick_up_variable_dict[key].keys(): # iteation over buses picked up
+        #     pyomo_id = area_object_list[key].rm.model.node_indices_in_tree[bus_id]
+        #     load += area_object_list[key].rm.model.active_demand_each_node[pyomo_id] * pick_up_variable_dict[key][bus_id]
+        # load present in given bus of given area restored
+
+        # just for debugging
+        for pyomo_id in area_object_list[key].rm.model.node_indices_in_tree.values():
+            bus_id = next((key for key, val in area_object_list[key].rm.model.node_indices_in_tree.items() if val == pyomo_id), None)
+            if "area" in bus_id:
+                continue
+            elif bus_id in pick_up_variable_dict[key].keys():
+                load_without_CLPU += (original_load_data_dict[bus_id]["P1"] + original_load_data_dict[bus_id]["P2"] + original_load_data_dict[bus_id]["P3"])*pick_up_variable_dict[key][bus_id]
+                load_with_CLPU += (area_object_list[key].rm.model.P1[pyomo_id]()+area_object_list[key].rm.model.P2[pyomo_id]()+area_object_list[key].rm.model.P3[pyomo_id]()) * pick_up_variable_dict[key][bus_id]
+
+            elif (area_object_list[key].rm.model.P1[pyomo_id]()+area_object_list[key].rm.model.P2[pyomo_id]()+area_object_list[key].rm.model.P3[pyomo_id]()) > 0 and bus_id not in pick_up_variable_dict[key].keys():
+                print(f"bus id not picked up {bus_id} with load {area_object_list[key].rm.model.P1[pyomo_id]()+area_object_list[key].rm.model.P2[pyomo_id]()+area_object_list[key].rm.model.P3[pyomo_id]()}" )
+        restored_load_with_out_CLPU.append(load_without_CLPU)
+        restored_load_with_CLPU.append(load_with_CLPU)
+
+    return sum(restored_load_with_out_CLPU), sum(restored_load_with_CLPU) # return restored laod for this restoration period
 
 
-def fix_restored_previous_load(rm,  pick_up_dict):
+def fix_restored_previous_load(rm,  pick_up_variable_dict):
     ''' fixing pick up load in previous iteration'''
     model = rm.model
-    for _ in  pick_up_dict.keys():
+    for _ in  pick_up_variable_dict.keys():
         bus_index_pyomo = model.node_indices_in_tree[_]
-        if pick_up_dict[_] == 1:
+        if pick_up_variable_dict[_] == 1:
             model.si[bus_index_pyomo].fix(1)
     rm.model = model
     return rm
+
+def initialize_bus_index_outage_restore_dict(area_object_list, areas_data_file_path, outaged_area_list = None, current_time_index = None):
+    bus_index_outage_restore_dict = {}
+    for area_index in area_object_list.keys():
+        area_dir = os.path.abspath(areas_data_file_path + f"/{area_index}".rstrip("_o"))
+        load_df = pd.read_csv(os.path.join(area_dir, "load_data.csv"))  # area load df
+        load_df["bus"] = load_df["bus"].astype(str)  # converting to string
+        if f"/{area_index}".rstrip("_o") in outaged_area_list:
+            for bus in load_df["bus"].to_list():
+                bus_index_outage_restore_dict[bus] = {"outage_time_index": current_time_index, "restored_time_index": 0} # load is off
+        else:
+            for bus in load_df["bus"].to_list():
+                bus_index_outage_restore_dict[bus] = {"outage_time_index": 1, "restored_time_index": 0} # no outage happen, load is on
+
+    return bus_index_outage_restore_dict # returning updated load data dict
+
+
+    
+
+def get_load_from_WVU(area_object_list,areas_data_file_path, bus_index_outage_restore_dict, current_time_index):
+    ''' returns a dictionary of bus:load value'''
+    updated_load_data_dict = {}
+    original_load_data_dict = {} # actual net original load yto be used to get total restored load later for post processing
+    for area_index in area_object_list.keys():
+        area_dir = os.path.abspath(areas_data_file_path + f"/{area_index}".rstrip("_o"))
+        load_df = pd.read_csv(os.path.join(area_dir, "load_data.csv"))  #area load df
+        load_df["bus"] = load_df["bus"].astype(str) # converting to string
+        for bus in load_df["bus"].to_list():
+            bus_dict = {}
+            bus_dict[bus] = {} # just to align with rafy's input
+            bus_dict[bus]["P1"] = load_df.loc[load_df["bus"] == bus, ["P1"]].values[0][0]
+            bus_dict[bus]["Q1"] = load_df.loc[load_df["bus"] == bus, ["Q1"]].values[0][0]
+            bus_dict[bus]["P2"] = load_df.loc[load_df["bus"] == bus, ["P2"]].values[0][0]
+            bus_dict[bus]["Q2"] = load_df.loc[load_df["bus"] == bus, ["Q2"]].values[0][0]
+            bus_dict[bus]["P3"] = load_df.loc[load_df["bus"] == bus, ["P3"]].values[0][0]
+            bus_dict[bus]["Q3"] = load_df.loc[load_df["bus"] == bus, ["Q3"]].values[0][0]
+            original_load_data_dict[bus] = bus_dict[bus] # original load data dict
+
+            if (bus_dict[bus]["P1"]+ bus_dict[bus]["P2"] + bus_dict[bus]["P3"]) == 0:
+                Q_P_relation = 0
+            else:
+                Q_P_relation = (bus_dict[bus]["Q1"] + bus_dict[bus]["Q2"] + bus_dict[bus]["Q3"]) / (bus_dict[bus]["P1"]+ bus_dict[bus]["P2"] + bus_dict[bus]["P3"])
+
+
+            outage_start = bus_index_outage_restore_dict[bus]["outage_time_index"] # outage start time index
+            restoration_end = bus_index_outage_restore_dict[bus]["restored_time_index"] # restoration end time index
+
+            # call WVU model here by passing this to Rafy's Pv estimation model
+            #{'Bus': 'L3252336', 'P1': 4.0, 'Q1': 0, 'P2': 8.0, 'Q2': 0, 'P3': 9.0, 'Q3': 0}
+            estimated_load_dict = get_load_considering_PV_CLPU(t_index=current_time_index, outage_start=outage_start, restoration_end=restoration_end, bus_snapshot=bus_dict)
+            updated_load_data_dict[bus] = {}
+            if bus_dict[bus]["P1"] == 0:
+                updated_load_data_dict[bus]["P1"] = 0
+            else:
+                updated_load_data_dict[bus]["P1"] = estimated_load_dict["P1"]
+            if bus_dict[bus]["P2"] == 0:
+                updated_load_data_dict[bus]["P2"] = 0
+            else:
+                updated_load_data_dict[bus]["P2"] = estimated_load_dict["P2"]
+            if bus_dict[bus]["P3"] == 0:
+                updated_load_data_dict[bus]["P3"] = 0
+            else:
+                updated_load_data_dict[bus]["P3"] = estimated_load_dict["P3"]
+            updated_load_data_dict[bus]["Q1"] = estimated_load_dict["P1"] * Q_P_relation
+            updated_load_data_dict[bus]["Q2"] = estimated_load_dict["P2"] * Q_P_relation
+            updated_load_data_dict[bus]["Q3"] = estimated_load_dict["P3"] * Q_P_relation
+    return updated_load_data_dict, original_load_data_dict # returning updated load data dict
+
 
 
 def plot_voltage_quality( voltage_quality_measure_list):
@@ -608,10 +749,11 @@ def plot_voltage_quality( voltage_quality_measure_list):
     plt.ylabel("voltage quality measure")
     plt.show()
 
-def plot_power_restored( restored_load_list):
+def plot_power_restored( restored_load_list, title = None):
     ''' plots restored load wrt iteration'''
     plt.figure(figsize=(7, 4))
     plt.plot(restored_load_list)
     plt.xlabel("#discrete time steps")
     plt.ylabel("restored load")
+    plt.title(title)
     plt.show()

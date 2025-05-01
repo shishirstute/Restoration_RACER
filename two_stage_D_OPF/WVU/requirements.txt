@@ -1,0 +1,5 @@
+# Please run "pip install -r requirements.txt" before running the main.py script
+# Required libraries:
+
+torch==2.6.0+cpu --index-url https://download.pytorch.org/whl/cpu
+torch-geometric==2.6.1

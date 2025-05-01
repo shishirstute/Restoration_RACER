@@ -18,6 +18,7 @@ from pyomo.environ import (
     maximize,
     SolverFactory,
     value,
+    Param
 )
 from pyomo.opt import SolverStatus, TerminationCondition
 
@@ -44,13 +45,14 @@ BIG_M_VOLTAGE_MULTIPLIER = 5
 KW_TO_MW_FACTOR = 1000
 
 
+
 # exceptions
 class missing_kVbase_error(Exception):
     "Raise exception when the line to line kV Base is not passed as an argument"
 
 
 class RestorationModel:
-    def __init__(self, data: DataLoader, faults: list[tuple] = None) -> None:
+    def __init__(self, data: DataLoader, faults: list[tuple] = None,psub_max = None) -> None:
         """LinDistRestoration model
 
         Args:
@@ -60,6 +62,9 @@ class RestorationModel:
         Raises:
             FileNotFoundError: exception is raised when one or more files are missing
         """
+        
+        self.psub_max_for_model_update_only = psub_max # added by shishir to deal with update only model condition, as pmax is 0 initially but not zero in later maxro iterations, to deal with this. 
+        
         # assign attributes from the inputs
         self.data = data.load_data()
         if faults is None:
@@ -411,11 +416,18 @@ class RestorationModel:
         # also store the faults here
         self.model.faults = self.faults
 
+
     @timethis
     def __initialize_variables(self) -> None:
         """Initialize necessary variables for the optimization problem."""
-        self.p_max = self.model.total_demand * BIG_M_POWER_MULTIPLIER
-        self.p_min = -self.model.total_demand * BIG_M_POWER_MULTIPLIER
+        if self.psub_max_for_model_update_only == None: # this condition is added just to get rid of error as area macro iteration initializes zero initially for power, useful when only model is to be updated. 
+            self.p_max = self.model.total_demand * BIG_M_POWER_MULTIPLIER
+            self.p_min = -self.model.total_demand * BIG_M_POWER_MULTIPLIER
+            
+        else:
+            self.p_max = self.psub_max_for_model_update_only * BIG_M_POWER_MULTIPLIER
+            self.p_min = -self.psub_max_for_model_update_only * BIG_M_POWER_MULTIPLIER
+            
 
         self.model.v_i = RangeSet(0, self.model.num_nodes - 1)
         self.model.x_ij = RangeSet(0, self.model.num_edges - 1)
@@ -425,6 +437,7 @@ class RestorationModel:
         self.model.vi = Var(self.model.v_i, bounds=(0, 1), domain=Binary)
         # self.model.si = Var(self.model.v_i, bounds=(0, 1), domain=Binary) # Commented by shishir. see substitute below
 
+        # commented by shishir to test parallel on 4/29
         def binary_continuous(model, bus_index): # if boundary bus, make load pickup variable as continuous
             pattern = re.compile(r'^area_\d+area_\d+$')
             bus_name =  next((k for k, v in model.node_indices_in_tree.items() if v == bus_index), None)
@@ -507,6 +520,14 @@ class RestorationModel:
                 "base_kV_LL is missing. Please provide line to line base kV for this circuit."
             )
 
+        # added by shishir to get mutable parameters
+        self.model.vsub_a = Param(initialize = vsub_a, mutable=True)
+        self.model.vsub_b = Param(initialize=vsub_b, mutable=True)
+        self.model.vsub_c = Param(initialize=vsub_c, mutable=True)
+        self.model.psub_a_max = Param(initialize=psub_a_max, mutable=True)
+        self.model.psub_b_max = Param(initialize=psub_b_max, mutable=True)
+        self.model.psub_c_max = Param(initialize=psub_c_max, mutable=True)
+
         self._constraints_list = []
 
         # ------------------------------- connectivity constraints ------------------------------------
@@ -557,11 +578,95 @@ class RestorationModel:
 
         # ---------------------------------------------------------------------------------------------
         @timethis
+        # def powerflow_rule_base() -> None:
+        #     """Constraints for power flow balance in each of the nodes such that incoming power is the sum of outgoing power
+        #     and nodal demand.
+        #      - This is the base power flow and does not consider any backup resources (PV, battery, or other backup DGs)
+        #     """
+        #     self.model.power_flow = ConstraintList()
+        #
+        #     for k in self.model.x_ij:
+        #         active_node = self.model.target_nodes[k]
+        #         active_node_index = self.node_indices_in_tree[active_node]
+        #
+        #         children_nodes = [
+        #             ch_nodes
+        #             for ch_nodes, each_node in enumerate(self.model.source_nodes)
+        #             if each_node == active_node
+        #         ]
+        #         parent_nodes = [
+        #             pa_nodes
+        #             for pa_nodes, each_node in enumerate(self.model.target_nodes)
+        #             if each_node == active_node
+        #         ]
+        #
+        #         # access active and reactive power matching each indices
+        #         (
+        #             active_power_A,
+        #             reactive_power_A,
+        #             active_power_B,
+        #             reactive_power_B,
+        #             active_power_C,
+        #             reactive_power_C) = self.model.demand[self.model.demand["bus"] == self.model.target_nodes[k]][["P1", "Q1", "P2", "Q2", "P3", "Q3"]].values[0]
+        #
+        #         # flow constraint: Pin = Pdemand (if picked up) + Pout (same for Q)
+        #         self.model.power_flow.add(
+        #             sum(self.model.Pija[each_parent] for each_parent in parent_nodes)
+        #             - active_power_A * self.model.si[active_node_index]
+        #             == sum(self.model.Pija[each_child] for each_child in children_nodes)
+        #         )
+        #         self.model.power_flow.add(
+        #             sum(self.model.Qija[each_parent] for each_parent in parent_nodes)
+        #             - reactive_power_A * self.model.si[active_node_index]
+        #             == sum(self.model.Qija[each_child] for each_child in children_nodes)
+        #         )
+        #
+        #         # Phase B
+        #         # flow constraint: Pin = Pdemand (if picked up) + Pout (same for Q)
+        #         self.model.power_flow.add(
+        #             sum(self.model.Pijb[each_parent] for each_parent in parent_nodes)
+        #             - active_power_B * self.model.si[active_node_index]
+        #             == sum(self.model.Pijb[each_child] for each_child in children_nodes)
+        #         )
+        #         self.model.power_flow.add(
+        #             sum(self.model.Qijb[each_parent] for each_parent in parent_nodes)
+        #             - reactive_power_B * self.model.si[active_node_index]
+        #             == sum(self.model.Qijb[each_child] for each_child in children_nodes)
+        #         )
+        #
+        #         # Phase C
+        #         # flow constraint: Pin = Pdemand (if picked up) + Pout (same for Q)
+        #         self.model.power_flow.add(
+        #             sum(self.model.Pijc[each_parent] for each_parent in parent_nodes)
+        #             - active_power_C * self.model.si[active_node_index]
+        #             == sum(self.model.Pijc[each_child] for each_child in children_nodes)
+        #         )
+        #         self.model.power_flow.add(
+        #             sum(self.model.Qijc[each_parent] for each_parent in parent_nodes)
+        #             - reactive_power_C * self.model.si[active_node_index]
+        #             == sum(self.model.Qijc[each_child] for each_child in children_nodes)
+        #         )
+        #     logger.info(
+        #         f"Successfully added power flow constraints as {self.model.power_flow}"
+        #     )
+        #
+        #     # append these constraints for user information
+        #     self._constraints_list.append(self.model.power_flow)
+
+        # this is added by shishir to have mutable parameters for load
         def powerflow_rule_base() -> None:
             """Constraints for power flow balance in each of the nodes such that incoming power is the sum of outgoing power
             and nodal demand.
              - This is the base power flow and does not consider any backup resources (PV, battery, or other backup DGs)
             """
+            # creating mutable power parameters
+            self.model.P1 = Param(self.model.v_i, mutable=True, initialize = 0)
+            self.model.Q1 = Param(self.model.v_i, mutable=True, initialize = 0)
+            self.model.P2 = Param(self.model.v_i, mutable=True, initialize = 0)
+            self.model.Q2 = Param(self.model.v_i, mutable=True, initialize = 0)
+            self.model.P3 = Param(self.model.v_i, mutable=True, initialize = 0)
+            self.model.Q3 = Param(self.model.v_i, mutable=True, initialize = 0)
+
             self.model.power_flow = ConstraintList()
 
             for k in self.model.x_ij:
@@ -586,24 +691,24 @@ class RestorationModel:
                     active_power_B,
                     reactive_power_B,
                     active_power_C,
-                    reactive_power_C,
-                ) = self.model.demand[
-                    self.model.demand["bus"] == self.model.target_nodes[k]
-                ][
-                    ["P1", "Q1", "P2", "Q2", "P3", "Q3"]
-                ].values[
-                    0
-                ]
+                    reactive_power_C) = self.model.demand[self.model.demand["bus"] == self.model.target_nodes[k]][["P1", "Q1", "P2", "Q2", "P3", "Q3"]].values[0]
+
+                self.model.P1[active_node_index].set_value(active_power_A)
+                self.model.Q1[active_node_index].set_value(reactive_power_A)
+                self.model.P2[active_node_index].set_value(active_power_B)
+                self.model.Q2[active_node_index].set_value(reactive_power_B)
+                self.model.P3[active_node_index].set_value(active_power_C)
+                self.model.Q3[active_node_index].set_value(reactive_power_C)
 
                 # flow constraint: Pin = Pdemand (if picked up) + Pout (same for Q)
                 self.model.power_flow.add(
                     sum(self.model.Pija[each_parent] for each_parent in parent_nodes)
-                    - active_power_A * self.model.si[active_node_index]
+                    - self.model.P1[active_node_index] * self.model.si[active_node_index]
                     == sum(self.model.Pija[each_child] for each_child in children_nodes)
                 )
                 self.model.power_flow.add(
                     sum(self.model.Qija[each_parent] for each_parent in parent_nodes)
-                    - reactive_power_A * self.model.si[active_node_index]
+                    - self.model.Q1[active_node_index] * self.model.si[active_node_index]
                     == sum(self.model.Qija[each_child] for each_child in children_nodes)
                 )
 
@@ -611,12 +716,12 @@ class RestorationModel:
                 # flow constraint: Pin = Pdemand (if picked up) + Pout (same for Q)
                 self.model.power_flow.add(
                     sum(self.model.Pijb[each_parent] for each_parent in parent_nodes)
-                    - active_power_B * self.model.si[active_node_index]
+                    - self.model.P2[active_node_index] * self.model.si[active_node_index]
                     == sum(self.model.Pijb[each_child] for each_child in children_nodes)
                 )
                 self.model.power_flow.add(
                     sum(self.model.Qijb[each_parent] for each_parent in parent_nodes)
-                    - reactive_power_B * self.model.si[active_node_index]
+                    - self.model.Q2[active_node_index] * self.model.si[active_node_index]
                     == sum(self.model.Qijb[each_child] for each_child in children_nodes)
                 )
 
@@ -624,12 +729,12 @@ class RestorationModel:
                 # flow constraint: Pin = Pdemand (if picked up) + Pout (same for Q)
                 self.model.power_flow.add(
                     sum(self.model.Pijc[each_parent] for each_parent in parent_nodes)
-                    - active_power_C * self.model.si[active_node_index]
+                    -  self.model.P3[active_node_index] * self.model.si[active_node_index]
                     == sum(self.model.Pijc[each_child] for each_child in children_nodes)
                 )
                 self.model.power_flow.add(
                     sum(self.model.Qijc[each_parent] for each_parent in parent_nodes)
-                    - reactive_power_C * self.model.si[active_node_index]
+                    - self.model.Q3[active_node_index] * self.model.si[active_node_index]
                     == sum(self.model.Qijc[each_child] for each_child in children_nodes)
                 )
             logger.info(
@@ -1159,13 +1264,13 @@ class RestorationModel:
             ]
 
             self.model.substation_voltage.add(
-                self.model.Via[substation_index] == vsub_a**2 # added a,b,c voltage by shishir
+                self.model.Via[substation_index] == self.model.vsub_a**2 # added a,b,c voltage by shishir
             )
             self.model.substation_voltage.add(
-                self.model.Vib[substation_index] == vsub_b**2 # added by shishir
+                self.model.Vib[substation_index] == self.model.vsub_b**2 # added by shishir
             )
             self.model.substation_voltage.add(
-                self.model.Vic[substation_index] == vsub_c**2 # added by shishir
+                self.model.Vic[substation_index] == self.model.vsub_c**2 # added by shishir
             )
 
             logger.info(
@@ -1406,18 +1511,26 @@ class RestorationModel:
     def objective_load_only(self) -> None:
         """Objective to minimize the loss of load or maximize the total load pick up"""
 
+        # commented by shishir on 4/29/2025
+        # self.model.restoration_objective = Objective(
+        #     expr=(
+        #         sum(
+        #             self.model.si[i]
+        #             * self.model.active_demand_each_node[
+        #                 self.demand_node_indices_in_tree[i]
+        #             ]
+        #             for i in self.model.v_i
+        #         )
+        #     ),
+        #     sense=maximize,
+        # )
+
+        # added by shishir to deal with mutable parameters on 4/29/2025
         self.model.restoration_objective = Objective(
             expr=(
                 sum(
                     self.model.si[i]
-                    * self.model.active_demand_each_node[
-                        self.demand_node_indices_in_tree[i]
-                    ]
-                    for i in self.model.v_i
-                )
-            ),
-            sense=maximize,
-        )
+                    * (self.model.P1[i] + self.model.P2[i] + self.model.P3[i]) for i in self.model.v_i)),sense=maximize)
 
     @timethis
     def objective_load_and_switching(
@@ -1429,21 +1542,41 @@ class RestorationModel:
             alpha (float, optional): Weight factor for load restoration (load pick up maximization) objective. Defaults to 1
             beta (float, optional): Weight factor for switching minimization. Defaults to 0.2
         """
+
+        # commented by shishir on 4/29/2025
+        # self.model.restoration_objective = Objective(
+        #     expr=(
+        #         alpha
+        #         * sum(
+        #             self.model.si[i]
+        #             * self.model.active_demand_each_node[
+        #                 self.demand_node_indices_in_tree[i]
+        #             ]
+        #             for i in self.model.v_i
+        #         )
+        #         + beta
+        #         * sum(
+        #             self.model.xij[j] for j in self.model.sectionalizing_switch_indices
+        #         )
+        #         - beta * sum(self.model.xij[k] for k in self.model.tie_switch_indices)
+        #     ),
+        #     sense=maximize,
+        # )
+
+        # added by shishir to deal with mutable parameters on 4/29/2025
         self.model.restoration_objective = Objective(
             expr=(
-                alpha
-                * sum(
-                    self.model.si[i]
-                    * self.model.active_demand_each_node[
-                        self.demand_node_indices_in_tree[i]
-                    ]
-                    for i in self.model.v_i
-                )
-                + beta
-                * sum(
-                    self.model.xij[j] for j in self.model.sectionalizing_switch_indices
-                )
-                - beta * sum(self.model.xij[k] for k in self.model.tie_switch_indices)
+                    alpha
+                    * sum(
+                self.model.si[i]
+                * (self.model.P1[i] + self.model.P2[i] + self.model.P3[i])  # added by shishir
+                for i in self.model.v_i
+            )
+                    + beta
+                    * sum(
+                self.model.xij[j] for j in self.model.sectionalizing_switch_indices
+            )
+                    - beta * sum(self.model.xij[k] for k in self.model.tie_switch_indices)
             ),
             sense=maximize,
         )
@@ -1473,23 +1606,45 @@ class RestorationModel:
                 f"Cannot use objective_load_and_switching() without DERs. Please either include DERs or use 'objective_load_only()' objective"
             )
 
+        # commented by shishir on 4/29/2025
+        # self.model.restoration_objective = Objective(
+        #     expr=(
+        #         alpha
+        #         * sum(
+        #             self.model.si[i]
+        #             * self.model.active_demand_each_node[
+        #                 self.demand_node_indices_in_tree[i]
+        #             ]
+        #             for i in self.model.v_i
+        #         )
+        #         + beta
+        #         * sum(
+        #             self.model.xij[j] for j in self.model.sectionalizing_switch_indices
+        #         )
+        #         - beta * sum(self.model.xij[k] for k in self.model.tie_switch_indices)
+        #         - gamma
+        #         * sum(self.model.xij[l] for l in self.model.virtual_switch_indices)
+        #     ),
+        #     sense=maximize,
+        # )
+
+
+        # added by shishir to deal with mutable parameters on 4/29/2025
         self.model.restoration_objective = Objective(
             expr=(
-                alpha
-                * sum(
-                    self.model.si[i]
-                    * self.model.active_demand_each_node[
-                        self.demand_node_indices_in_tree[i]
-                    ]
-                    for i in self.model.v_i
-                )
-                + beta
-                * sum(
-                    self.model.xij[j] for j in self.model.sectionalizing_switch_indices
-                )
-                - beta * sum(self.model.xij[k] for k in self.model.tie_switch_indices)
-                - gamma
-                * sum(self.model.xij[l] for l in self.model.virtual_switch_indices)
+                    alpha
+                    * sum(
+                self.model.si[i]
+                * (self.model.P1[i] + self.model.P2[i] + self.model.P3[i])  # added by shishir
+                for i in self.model.v_i
+            )
+                    + beta
+                    * sum(
+                self.model.xij[j] for j in self.model.sectionalizing_switch_indices
+            )
+                    - beta * sum(self.model.xij[k] for k in self.model.tie_switch_indices)
+                    - gamma
+                    * sum(self.model.xij[l] for l in self.model.virtual_switch_indices)
             ),
             sense=maximize,
         )

@@ -1,0 +1,14 @@
+{
+    "directed": false,
+    "multigraph": false,
+    "graph": {},
+    "nodes": [
+        {
+            "basekV": 0.28,
+            "latitude": 46.69740198,
+            "longitude": -119.162092,
+            "id": "m1089-lng1"
+        }
+    ],
+    "links": []
+}
