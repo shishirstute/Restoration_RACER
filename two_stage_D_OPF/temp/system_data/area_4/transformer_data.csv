@@ -1,1 +1,5 @@
 ,name,numwindings,connected_from,connected_to
+1,hvmv69_11sub1,2,hvmv69sub1_hsb,regxfmr_hvmv11sub1_lsb
+2,feeder_reg1a,2,regxfmr_hvmv11sub1_lsb,hvmv11sub1_lsb
+3,feeder_reg1b,2,regxfmr_hvmv11sub1_lsb,hvmv11sub1_lsb
+4,feeder_reg1c,2,regxfmr_hvmv11sub1_lsb,hvmv11sub1_lsb

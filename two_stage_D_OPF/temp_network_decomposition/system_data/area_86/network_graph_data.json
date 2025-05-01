@@ -1,0 +1,645 @@
+{
+    "directed": false,
+    "multigraph": false,
+    "graph": {},
+    "nodes": [
+        {
+            "basekV": 7.2,
+            "latitude": 46.70069938,
+            "longitude": -119.220474,
+            "id": "l3195751"
+        },
+        {
+            "basekV": 7.2,
+            "latitude": 46.71528462,
+            "longitude": -119.2265664,
+            "id": "l2879087"
+        },
+        {
+            "basekV": 7.2,
+            "latitude": 46.71665666,
+            "longitude": -119.2239545,
+            "id": "l3216358"
+        },
+        {
+            "basekV": 7.2,
+            "latitude": 46.71257848,
+            "longitude": -119.2260704,
+            "id": "l3122847"
+        },
+        {
+            "basekV": 7.2,
+            "latitude": 46.71258114,
+            "longitude": -119.2245834,
+            "id": "m1026812"
+        },
+        {
+            "basekV": 7.2,
+            "latitude": 46.70203936,
+            "longitude": -119.2216974,
+            "id": "l3233353"
+        },
+        {
+            "basekV": 7.2,
+            "latitude": 46.71530348,
+            "longitude": -119.2227403,
+            "id": "l2952013"
+        },
+        {
+            "basekV": 7.2,
+            "latitude": 46.70764964,
+            "longitude": -119.2250044,
+            "id": "m1026805"
+        },
+        {
+            "basekV": 7.2,
+            "latitude": 46.71258132,
+            "longitude": -119.2244661,
+            "id": "m3037453"
+        },
+        {
+            "basekV": 7.2,
+            "latitude": 46.70679292,
+            "longitude": -119.2260169,
+            "id": "l3010585"
+        },
+        {
+            "basekV": 7.2,
+            "latitude": 46.70506378,
+            "longitude": -119.2235759,
+            "id": "l2895461"
+        },
+        {
+            "basekV": 7.2,
+            "latitude": 46.7196173,
+            "longitude": -119.2239706,
+            "id": "d6440002-2_int"
+        },
+        {
+            "basekV": 7.2,
+            "latitude": 46.71253318,
+            "longitude": -119.2244765,
+            "id": "l2785546"
+        },
+        {
+            "basekV": 7.2,
+            "latitude": 46.7191047,
+            "longitude": -119.2239964,
+            "id": "l2876813"
+        },
+        {
+            "basekV": 7.2,
+            "latitude": 46.71085816,
+            "longitude": -119.224837,
+            "id": "m1026810"
+        },
+        {
+            "basekV": 7.2,
+            "latitude": 46.70906406,
+            "longitude": -119.2257118,
+            "id": "l2914324"
+        },
+        {
+            "basekV": 7.2,
+            "latitude": 46.71346514,
+            "longitude": -119.2242754,
+            "id": "m3037538"
+        },
+        {
+            "basekV": 7.2,
+            "latitude": 46.71514258,
+            "longitude": -119.2239818,
+            "id": "m1026820"
+        },
+        {
+            "basekV": 7.2,
+            "latitude": 46.71546682,
+            "longitude": -119.2254699,
+            "id": "m1026823"
+        },
+        {
+            "basekV": 7.2,
+            "latitude": 46.70393716,
+            "longitude": -119.2202838,
+            "id": "l2821010"
+        },
+        {
+            "basekV": 7.2,
+            "latitude": 46.7023831,
+            "longitude": -119.2204107,
+            "id": "m1026773"
+        },
+        {
+            "basekV": 7.2,
+            "latitude": 46.7179634,
+            "longitude": -119.2239538,
+            "id": "l2785531"
+        },
+        {
+            "basekV": 7.2,
+            "latitude": 46.70259244,
+            "longitude": -119.2208759,
+            "id": "m1026777"
+        },
+        {
+            "basekV": 7.2,
+            "latitude": 46.71331016,
+            "longitude": -119.2230508,
+            "id": "l2857591"
+        },
+        {
+            "basekV": 7.2,
+            "latitude": 46.71429856,
+            "longitude": -119.2240593,
+            "id": "l3141403"
+        },
+        {
+            "basekV": 7.2,
+            "latitude": 46.71342982,
+            "longitude": -119.2242841,
+            "id": "l3027133"
+        },
+        {
+            "basekV": 7.2,
+            "latitude": 46.70644676,
+            "longitude": -119.2244337,
+            "id": "l3120502"
+        },
+        {
+            "basekV": 7.2,
+            "latitude": 46.70535738,
+            "longitude": -119.2227065,
+            "id": "m1026792"
+        },
+        {
+            "basekV": 7.2,
+            "latitude": 46.70632244,
+            "longitude": -119.2268352,
+            "id": "m1026798"
+        },
+        {
+            "basekV": 7.2,
+            "latitude": 46.70612342,
+            "longitude": -119.2271814,
+            "id": "l2952014"
+        },
+        {
+            "basekV": 7.2,
+            "latitude": 46.716004,
+            "longitude": -119.2239004,
+            "id": "m1026826"
+        }
+    ],
+    "links": [
+        {
+            "name": "ln6199040-1",
+            "element": "line",
+            "length_unit": 3,
+            "z_matrix_real": "[[1.6338162917567176, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]",
+            "z_matrix_imag": "[[0.8968297096064779, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]",
+            "length": 0.11787265,
+            "num_phases": 1,
+            "phases": "{'a'}",
+            "is_switch": false,
+            "is_open": false,
+            "base_kv_LL": 12.47,
+            "source": "l3195751",
+            "target": "m1026773"
+        },
+        {
+            "name": "ln6047598-1",
+            "element": "line",
+            "length_unit": 3,
+            "z_matrix_real": "[[1.1223015188793086, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]",
+            "z_matrix_imag": "[[0.8963648536512115, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]",
+            "length": 0.065264961,
+            "num_phases": 1,
+            "phases": "{'a'}",
+            "is_switch": false,
+            "is_open": false,
+            "base_kv_LL": 12.47,
+            "source": "l2879087",
+            "target": "m1026823"
+        },
+        {
+            "name": "ln5956488-1",
+            "element": "line",
+            "length_unit": 3,
+            "z_matrix_real": "[[1.6735666049437612, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]",
+            "z_matrix_imag": "[[0.8931309060251463, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]",
+            "length": 0.091437278,
+            "num_phases": 1,
+            "phases": "{'a'}",
+            "is_switch": false,
+            "is_open": false,
+            "base_kv_LL": 12.47,
+            "source": "l3216358",
+            "target": "l2785531"
+        },
+        {
+            "name": "ln6350560-1",
+            "element": "line",
+            "length_unit": 3,
+            "z_matrix_real": "[[1.6735666049437612, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]",
+            "z_matrix_imag": "[[0.8931309060251463, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]",
+            "length": 0.04577771,
+            "num_phases": 1,
+            "phases": "{'a'}",
+            "is_switch": false,
+            "is_open": false,
+            "base_kv_LL": 12.47,
+            "source": "l3216358",
+            "target": "m1026826"
+        },
+        {
+            "name": "ln6255312-1",
+            "element": "line",
+            "length_unit": 3,
+            "z_matrix_real": "[[1.1223015188793084, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]",
+            "z_matrix_imag": "[[0.8963648536512114, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]",
+            "length": 0.086798183,
+            "num_phases": 1,
+            "phases": "{'a'}",
+            "is_switch": false,
+            "is_open": false,
+            "base_kv_LL": 12.47,
+            "source": "l3122847",
+            "target": "m1026812"
+        },
+        {
+            "name": "ln5679261-2",
+            "element": "line",
+            "length_unit": 3,
+            "z_matrix_real": "[[1.1223015188793086, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]",
+            "z_matrix_imag": "[[0.8963648536512115, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]",
+            "length": 0.006847824,
+            "num_phases": 1,
+            "phases": "{'a'}",
+            "is_switch": false,
+            "is_open": false,
+            "base_kv_LL": 12.47,
+            "source": "m1026812",
+            "target": "m3037453"
+        },
+        {
+            "name": "ln5773980-1",
+            "element": "line",
+            "length_unit": 3,
+            "z_matrix_real": "[[1.1223015188793084, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]",
+            "z_matrix_imag": "[[0.8963648536512115, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]",
+            "length": 0.061621051,
+            "num_phases": 1,
+            "phases": "{'a'}",
+            "is_switch": false,
+            "is_open": false,
+            "base_kv_LL": 12.47,
+            "source": "l3233353",
+            "target": "m1026777"
+        },
+        {
+            "name": "ln6258470-1",
+            "element": "line",
+            "length_unit": 3,
+            "z_matrix_real": "[[1.6735666049437612, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]",
+            "z_matrix_imag": "[[0.8931309060251463, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]",
+            "length": 0.083593427,
+            "num_phases": 1,
+            "phases": "{'a'}",
+            "is_switch": false,
+            "is_open": false,
+            "base_kv_LL": 12.47,
+            "source": "l2952013",
+            "target": "m1026826"
+        },
+        {
+            "name": "ln6106580-1",
+            "element": "line",
+            "length_unit": 3,
+            "z_matrix_real": "[[1.6746561983883672, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]",
+            "z_matrix_imag": "[[0.9345603406595092, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]",
+            "length": 0.090522024,
+            "num_phases": 1,
+            "phases": "{'a'}",
+            "is_switch": false,
+            "is_open": false,
+            "base_kv_LL": 12.47,
+            "source": "m1026805",
+            "target": "l3120502"
+        },
+        {
+            "name": "ln5683859-1",
+            "element": "line",
+            "length_unit": 3,
+            "z_matrix_real": "[[1.6746561983883674, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]",
+            "z_matrix_imag": "[[0.9345603406595093, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]",
+            "length": 0.084180184,
+            "num_phases": 1,
+            "phases": "{'a'}",
+            "is_switch": false,
+            "is_open": false,
+            "base_kv_LL": 12.47,
+            "source": "m1026805",
+            "target": "l3010585"
+        },
+        {
+            "name": "ln6047585-1",
+            "element": "line",
+            "length_unit": 3,
+            "z_matrix_real": "[[1.6735666049437612, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]",
+            "z_matrix_imag": "[[0.8931309060251464, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]",
+            "length": 0.10724059,
+            "num_phases": 1,
+            "phases": "{'a'}",
+            "is_switch": false,
+            "is_open": false,
+            "base_kv_LL": 12.47,
+            "source": "m1026805",
+            "target": "l2914324"
+        },
+        {
+            "name": "ln6436903-4",
+            "element": "line",
+            "length_unit": 3,
+            "z_matrix_real": "[[1.1223015188793086, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]",
+            "z_matrix_imag": "[[0.8963648536512115, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]",
+            "length": 0.003422117,
+            "num_phases": 1,
+            "phases": "{'a'}",
+            "is_switch": false,
+            "is_open": false,
+            "base_kv_LL": 12.47,
+            "source": "m3037453",
+            "target": "l2785546"
+        },
+        {
+            "name": "ln5528079-3",
+            "element": "line",
+            "length_unit": 3,
+            "z_matrix_real": "[[1.1223015188793084, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]",
+            "z_matrix_imag": "[[0.8963648536512117, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]",
+            "length": 0.060312235,
+            "num_phases": 1,
+            "phases": "{'a'}",
+            "is_switch": false,
+            "is_open": false,
+            "base_kv_LL": 12.47,
+            "source": "m3037453",
+            "target": "l3027133"
+        },
+        {
+            "name": "ln6320366-1",
+            "element": "line",
+            "length_unit": 3,
+            "z_matrix_real": "[[1.6746561983883672, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]",
+            "z_matrix_imag": "[[0.9345603406595093, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]",
+            "length": 0.058013557,
+            "num_phases": 1,
+            "phases": "{'a'}",
+            "is_switch": false,
+            "is_open": false,
+            "base_kv_LL": 12.47,
+            "source": "l3010585",
+            "target": "m1026798"
+        },
+        {
+            "name": "ln5501000-1",
+            "element": "line",
+            "length_unit": 3,
+            "z_matrix_real": "[[1.1223015188793084, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]",
+            "z_matrix_imag": "[[0.8963648536512115, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]",
+            "length": 0.054747227,
+            "num_phases": 1,
+            "phases": "{'a'}",
+            "is_switch": false,
+            "is_open": false,
+            "base_kv_LL": 12.47,
+            "source": "l2895461",
+            "target": "m1026792"
+        },
+        {
+            "name": "ln6440002-2",
+            "element": "line",
+            "length_unit": 3,
+            "z_matrix_real": "[[1.6735666049437614, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]",
+            "z_matrix_imag": "[[0.8931309060251464, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]",
+            "length": 0.080698075,
+            "num_phases": 1,
+            "phases": "{'a'}",
+            "is_switch": false,
+            "is_open": false,
+            "base_kv_LL": 12.47,
+            "source": "d6440002-2_int",
+            "target": "l2876813"
+        },
+        {
+            "name": "ln6376200-2",
+            "element": "line",
+            "length_unit": 3,
+            "z_matrix_real": "[[1.1223015188793086, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]",
+            "z_matrix_imag": "[[0.8963648536512115, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]",
+            "length": 0.11908408,
+            "num_phases": 1,
+            "phases": "{'a'}",
+            "is_switch": false,
+            "is_open": false,
+            "base_kv_LL": 12.47,
+            "source": "l2785546",
+            "target": "m1026810"
+        },
+        {
+            "name": "ln6015809-1",
+            "element": "line",
+            "length_unit": 3,
+            "z_matrix_real": "[[1.6735666049437614, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]",
+            "z_matrix_imag": "[[0.8931309060251464, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]",
+            "length": 0.079899044,
+            "num_phases": 1,
+            "phases": "{'a'}",
+            "is_switch": false,
+            "is_open": false,
+            "base_kv_LL": 12.47,
+            "source": "l2876813",
+            "target": "l2785531"
+        },
+        {
+            "name": "ln6260002-1",
+            "element": "line",
+            "length_unit": 3,
+            "z_matrix_real": "[[1.1223015188793086, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]",
+            "z_matrix_imag": "[[0.8963648536512115, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]",
+            "length": 0.13552301,
+            "num_phases": 1,
+            "phases": "{'a'}",
+            "is_switch": false,
+            "is_open": false,
+            "base_kv_LL": 12.47,
+            "source": "m1026810",
+            "target": "l2914324"
+        },
+        {
+            "name": "ln6167751-6",
+            "element": "line",
+            "length_unit": 3,
+            "z_matrix_real": "[[1.1223015188793084, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]",
+            "z_matrix_imag": "[[0.8963648536512115, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]",
+            "length": 0.002523134,
+            "num_phases": 1,
+            "phases": "{'a'}",
+            "is_switch": false,
+            "is_open": false,
+            "base_kv_LL": 12.47,
+            "source": "m3037538",
+            "target": "l3027133"
+        },
+        {
+            "name": "ln6167751-3",
+            "element": "line",
+            "length_unit": 3,
+            "z_matrix_real": "[[1.1223015188793084, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]",
+            "z_matrix_imag": "[[0.8963648536512115, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]",
+            "length": 0.059667313,
+            "num_phases": 1,
+            "phases": "{'a'}",
+            "is_switch": false,
+            "is_open": false,
+            "base_kv_LL": 12.47,
+            "source": "m3037538",
+            "target": "l3141403"
+        },
+        {
+            "name": "ln5501001-2",
+            "element": "line",
+            "length_unit": 3,
+            "z_matrix_real": "[[1.1223015188793084, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]",
+            "z_matrix_imag": "[[0.8963648536512114, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]",
+            "length": 0.072298511,
+            "num_phases": 1,
+            "phases": "{'a'}",
+            "is_switch": false,
+            "is_open": false,
+            "base_kv_LL": 12.47,
+            "source": "m3037538",
+            "target": "l2857591"
+        },
+        {
+            "name": "ln5683843-1",
+            "element": "line",
+            "length_unit": 3,
+            "z_matrix_real": "[[1.1223015188793084, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]",
+            "z_matrix_imag": "[[0.8963648536512115, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]",
+            "length": 0.060462688,
+            "num_phases": 1,
+            "phases": "{'a'}",
+            "is_switch": false,
+            "is_open": false,
+            "base_kv_LL": 12.47,
+            "source": "m1026820",
+            "target": "m1026826"
+        },
+        {
+            "name": "ln5774486-1",
+            "element": "line",
+            "length_unit": 3,
+            "z_matrix_real": "[[1.1223015188793084, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]",
+            "z_matrix_imag": "[[0.8963648536512114, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]",
+            "length": 0.059232545,
+            "num_phases": 1,
+            "phases": "{'a'}",
+            "is_switch": false,
+            "is_open": false,
+            "base_kv_LL": 12.47,
+            "source": "m1026820",
+            "target": "l3141403"
+        },
+        {
+            "name": "ln6411406-1",
+            "element": "line",
+            "length_unit": 3,
+            "z_matrix_real": "[[1.1223015188793086, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]",
+            "z_matrix_imag": "[[0.8963648536512117, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]",
+            "length": 0.089772241,
+            "num_phases": 1,
+            "phases": "{'a'}",
+            "is_switch": false,
+            "is_open": false,
+            "base_kv_LL": 12.47,
+            "source": "m1026820",
+            "target": "m1026823"
+        },
+        {
+            "name": "ln5652982-1",
+            "element": "line",
+            "length_unit": 3,
+            "z_matrix_real": "[[1.6746561983883672, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]",
+            "z_matrix_imag": "[[0.9345603406595094, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]",
+            "length": 0.17284247,
+            "num_phases": 1,
+            "phases": "{'a'}",
+            "is_switch": false,
+            "is_open": false,
+            "base_kv_LL": 12.47,
+            "source": "l2821010",
+            "target": "m1026792"
+        },
+        {
+            "name": "ln6349988-1",
+            "element": "line",
+            "length_unit": 3,
+            "z_matrix_real": "[[1.6746561983883672, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]",
+            "z_matrix_imag": "[[0.9345603406595094, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]",
+            "length": 0.10899541,
+            "num_phases": 1,
+            "phases": "{'a'}",
+            "is_switch": false,
+            "is_open": false,
+            "base_kv_LL": 12.47,
+            "source": "l2821010",
+            "target": "m1026773"
+        },
+        {
+            "name": "ln5652983-1",
+            "element": "line",
+            "length_unit": 3,
+            "z_matrix_real": "[[1.1223015188793084, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]",
+            "z_matrix_imag": "[[0.8963648536512114, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]",
+            "length": 0.030857527,
+            "num_phases": 1,
+            "phases": "{'a'}",
+            "is_switch": false,
+            "is_open": false,
+            "base_kv_LL": 12.47,
+            "source": "m1026773",
+            "target": "m1026777"
+        },
+        {
+            "name": "ln6198049-1",
+            "element": "line",
+            "length_unit": 3,
+            "z_matrix_real": "[[1.6338162917567174, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]",
+            "z_matrix_imag": "[[0.8968297096064779, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]",
+            "length": 0.12639188,
+            "num_phases": 1,
+            "phases": "{'a'}",
+            "is_switch": false,
+            "is_open": false,
+            "base_kv_LL": 12.47,
+            "source": "l3120502",
+            "target": "m1026792"
+        },
+        {
+            "name": "ln5803299-1",
+            "element": "line",
+            "length_unit": 3,
+            "z_matrix_real": "[[1.674656198388367, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]",
+            "z_matrix_imag": "[[0.9345603406595093, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]",
+            "length": 0.024539668,
+            "num_phases": 1,
+            "phases": "{'a'}",
+            "is_switch": false,
+            "is_open": false,
+            "base_kv_LL": 12.47,
+            "source": "m1026798",
+            "target": "l2952014"
+        }
+    ]
+}
