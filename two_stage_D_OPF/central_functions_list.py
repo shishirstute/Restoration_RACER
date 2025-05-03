@@ -1,6 +1,7 @@
 import pandas as pd
 import os
 import numpy as np
+import matplotlib.pyplot as plt
 
 from WSU_WVU_link import get_load_considering_PV_CLPU
 
@@ -204,3 +205,13 @@ def calculate_restored_load(rm_solved, pick_up_variable_dict, original_load_data
             print(f"bus id not picked up {bus_id} with load {rm_solved.P1[pyomo_id]() +rm_solved.P2[pyomo_id]() + rm_solved.P3[pyomo_id]()}" )
 
     return load_without_CLPU, load_with_CLPU
+
+
+def plot_power_restored( restored_load_list, title = None):
+    ''' plots restored load wrt iteration'''
+    plt.figure(figsize=(7, 4))
+    plt.plot(restored_load_list)
+    plt.xlabel("#discrete time steps")
+    plt.ylabel("restored load")
+    plt.title(title)
+    plt.show()

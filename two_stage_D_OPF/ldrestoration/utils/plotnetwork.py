@@ -113,9 +113,12 @@ def plot_solution_map(model: ConcreteModel,
         if round(model.si[node_index].value) == 1:
             node_radius=2 
             node_color="black"
+        elif (model.P1[node_index]() + model.P2[node_index]() + model.P3[node_index]()): # added by shishir
+            node_radius = 2
+            node_color = "red"  # if load not picked up
         else:
             node_radius=2 
-            node_color="gray"
+            node_color="gray" #gray in original
         
         popup_content = f"<span style='font-size:1.5em;'><strong>Name</strong>: {node}<br> \
                    <strong>Va</strong>: {round(np.sqrt(model.Via[node_index].value), 3) if model.Via[node_index].value is not None else 0.95}<br> \
@@ -123,7 +126,8 @@ def plot_solution_map(model: ConcreteModel,
                            <strong>Vc</strong>: {round(np.sqrt(model.Vic[node_index].value), 3) if model.Vic[node_index].value is not None else 0.95}<br> \
                                <strong>pickup status</strong>: {model.si[node_index].value}<br> \
                                    <strong>energization status</strong>: {model.vi[node_index].value} </span>"
-        
+
+        # popup_content = " " # just to test added by shishir
         iframe = IFrame(popup_content)
         popup = Popup(iframe,
                       min_width=300,
@@ -220,12 +224,12 @@ def plot_solution_map(model: ConcreteModel,
             if edge_index in fault_indices:    
                 # only sectionalizers are faulted no tie so we do not even check if it is switch          
                 # every faulted line is red  
-                colorcheck = "red"
+                colorcheck = "orange" # shishir changed it from red to orange
                 weightcheck = 5
             else:
                 if data['is_switch']:
                     # if non faulted line is opened then either there is no flow or its tie switch
-                    colorcheck = "pink" if data['is_open'] else "red"
+                    colorcheck = "pink" if data['is_open'] else "orange" # shishir changed it from red to orange
                     weightcheck = 5
                 else:
                     colorcheck = "gray"

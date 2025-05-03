@@ -16,7 +16,7 @@ class CLPULoadCalculator:
     def __init__(
         self,
         N_hvac: int = 6,
-        P_rated: float = 0.3,
+        P_rated: float = 0.9, # change this to 0.9 by shishir
         diversity_factor: float = 0.6,
         k_norm: float = 0.8,
         k_duration: float = 0.01,

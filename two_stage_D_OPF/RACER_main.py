@@ -15,7 +15,7 @@ system_name = "parsed_data_9500_der" # "parsed_data_9500_der, parsed_data_ieee12
 
 fix_restored_load_flag = True # fixing whether restored load need to be picked up or not in future iteration., True means it will be fixed if it was restored in previous time steps
 update_model_flag = True # whether to update mutable parameters only in model or reading from file and building model everytime, false means model will be created everytime
-update_from_CLPU_flag = False # if True, update load from CLPU, if False, use static load value
+update_from_CLPU_flag = True # if True, update load from CLPU, if False, use static load value
 
 
 # decomposed data file path permanent one
@@ -53,6 +53,7 @@ os.makedirs(temp_result_file_dir, exist_ok=True)
 # if want to give line faults (actual line from to )
 # faults_list = [("m1047515","m1047513")]
 # faults_list = [("d2000100_int","m2000200"),("hvmv69s1s2_1","hvmv69s1s2_2")]
+# faults_list = [("hvmv115_hsb2","regxfmr_hvmv69sub1_lsb1")]
 faults_list = []
 faults, fault_related_area_list = faults_line_to_area_mapping(areas_data_file_path, faults_list)
 
@@ -87,7 +88,7 @@ parent_child_area_dict, DERs_area_activated_dict = first_stage_restoration(parse
                                                                            faults=faults,objective_function_index = objective_function_index,\
                                                                            solver_options = solver_options,\
                                                                            psub_a_max = psub_max, psub_b_max = psub_max, psub_c_max = psub_max,\
-                                                                           temp_result_file_dir = temp_result_file_dir)
+                                                                           temp_result_file_dir = temp_result_file_dir, tee = True)
 
 
 #########Second Stage OPF solving ######################################################################
@@ -97,7 +98,7 @@ restored_load_with_CLPU_list = []
 pick_up_variable_dict = {} # {area_index:{bus_index: binary}}
 outaged_area_list = []
 relative_restoration_index = 0 # this is just keeping track of number of restoration index in
-for current_time_index in range(50, 55):
+for current_time_index in range(50, 60):
     relative_restoration_index += 1 # just for tracking how many steps of restoration is done
     print("current restoration step index is", current_time_index)
     # calling function which does preprocessing: i,e, adding dummy bus and generating required files for Lindist using updated information

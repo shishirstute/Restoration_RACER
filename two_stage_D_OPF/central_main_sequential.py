@@ -1,6 +1,7 @@
 from __future__ import annotations
 import os
 from ldrestoration import RestorationBase
+from ldrestoration.utils.plotnetwork import plot_solution_map
 from copy import deepcopy
 import networkx as nx
 import pandas as pd
@@ -29,8 +30,9 @@ parsed_data_path = current_working_dir + f"/Data/{system_name}"
 # faults = [("area_2","area_4")]
 # faults = [("d2000100_int","m2000200")]
 # faults = [("hvmv69s1s2_1","hvmv69s1s2_2")]
-faults = [("hvmv115_hsb2","regxfmr_hvmv69sub1_lsb1")]
-# faults = []
+# faults = [("hvmv115_hsb2","regxfmr_hvmv69sub1_lsb1")]
+# faults = [("m2000902","d2000901_int")] # area 88 fault
+faults = []
 
 vmax = 1.05
 vmin = 0.95
@@ -68,7 +70,8 @@ if first_solve_restoration_and_fix_switch:
     else:
         rm.objective_load_switching_and_der(beta = 0.4) # alpha, beta, gamma are parameters to it.beta = 0.2 is default
 
-    rm_solved, results = rm.solve_model(solver='gurobi',save_results = True, solver_options = {"mipgap":0.00000000,"ScaleFlag":1})
+    # rm_solved, results = rm.solve_model(solver='gurobi',save_results = True, solver_options = {"mipgap":0.00000000,"ScaleFlag":1})
+    rm_solved, results = rm.solve_model(solver='gurobi', save_results=True, solver_options={"ScaleFlag": 1})
 
     # once you obtain solution, keep the topology fixed.
     sectionalizing_switch_decisions = {_: rm_solved.xij[_]() for _ in rm_solved.sectionalizing_switch_indices} # pyomo index: binary value
@@ -91,7 +94,7 @@ load_without_CLPU_list = [] # load list restored not including CLPU part
 load_with_CLPU_list = [] # load list including CLPU part.
 pick_up_variable_dict = {}
 relative_restoration_index = 0 # this is just keeping track of number of restoration index in
-for current_time_index in range(50, 51):
+for current_time_index in range(50, 65):
     relative_restoration_index += 1  # just for tracking how many steps of restoration is done
     if relative_restoration_index == 1:
         bus_index_outage_restore_dict = initialize_bus_index_outage_restore_dict(temp_parsed_data_path,\
@@ -141,7 +144,8 @@ for current_time_index in range(50, 51):
 
     if  relative_restoration_index != 1:
         previous_model_solved = deepcopy(rm_solved)
-    rm_solved, results = rm.solve_model(solver='gurobi',save_results = True, solver_options = {"mipgap":0.00000000,"ScaleFlag":1})
+    # rm_solved, results = rm.solve_model(solver='gurobi',save_results = True, solver_options = {"mipgap":0.00000000,"ScaleFlag":1})
+    rm_solved, results = rm.solve_model(solver='gurobi', save_results=True, solver_options={"ScaleFlag": 1})
 
     if results.solver.termination_condition == TerminationCondition.infeasible:
         rm_solved = previous_model_solved
@@ -182,3 +186,9 @@ for current_time_index in range(50, 51):
     print("voltage quality list", voltage_quality_measure_list)
     print("load without incorporating CLPU", load_without_CLPU_list)
     print("load with incorporating CLPU", load_with_CLPU_list)
+
+    plot_power_restored(load_without_CLPU_list, title="without CLPU part")
+    plot_power_restored(load_with_CLPU_list, title="with CLPU part")
+
+    # plotting in map
+    plot_solution_map(rm_solved, rm.network_tree, rm.network_graph, background="white", filename = f"power_flow_{relative_restoration_index}.html")

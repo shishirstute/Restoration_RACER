@@ -1,2 +1,2 @@
 name,element,length_unit,z_matrix_real,z_matrix_imag,length,from_bus,to_bus,num_phases,phases,is_switch,is_open,base_kv_LL,line_unit
-area_88area_99_m2001-ess2,line,,"[[0.001, 0.0, 0.0], [0.0, 0.001, 0.0], [0.0, 0.0, 0.001]]","[[0.001, 0.0, 0.0], [0.0, 0.001, 0.0], [0.0, 0.0, 0.001]]",0.001,area_88area_99,m2001-ess2,3,"{'b', 'a', 'c'}",False,False,12.47,3.0
+area_88area_99_m2001-ess2,line,,"[[0.001, 0.0, 0.0], [0.0, 0.001, 0.0], [0.0, 0.0, 0.001]]","[[0.001, 0.0, 0.0], [0.0, 0.001, 0.0], [0.0, 0.0, 0.001]]",0.001,area_88area_99,m2001-ess2,3,"{'c', 'a', 'b'}",False,False,12.47,3.0

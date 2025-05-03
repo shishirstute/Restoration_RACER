@@ -101,7 +101,7 @@
             "z_matrix_imag": "[[0.001, 0.0, 0.0], [0.0, 0.001, 0.0], [0.0, 0.0, 0.001]]",
             "length": 0.001,
             "num_phases": 3,
-            "phases": "{'b', 'a', 'c'}",
+            "phases": "{'c', 'a', 'b'}",
             "is_switch": false,
             "is_open": false,
             "base_kv_LL": 12.47,

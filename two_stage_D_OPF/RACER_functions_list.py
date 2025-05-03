@@ -34,7 +34,7 @@ def faults_line_to_area_mapping( areas_data_file_path, faults_list):
     return faults_area_tuple_pair, fault_related_area_list
 
 
-def first_stage_restoration(parsed_data_path, faults, temp_result_file_dir, objective_function_index = 1,solver_options = None, psub_a_max = 5000, psub_b_max = 5000, psub_c_max = 5000):
+def first_stage_restoration(parsed_data_path, faults, temp_result_file_dir, objective_function_index = 1,solver_options = None, psub_a_max = 5000, psub_b_max = 5000, psub_c_max = 5000, tee = False):
     ''' implements the first stage restoration, takes data, fault information and return parent child relation dictionary'''
 
     rm = RestorationBase(parsed_data_path, faults=faults, base_kV_LL=4.16) # for baseKv you can put anything since voltage does not matter that much as line are switches
@@ -51,7 +51,7 @@ def first_stage_restoration(parsed_data_path, faults, temp_result_file_dir, obje
     else:
         rm.objective_load_switching_and_der() # same as 2 but with DERS present
 
-    rm_solved, results = rm.solve_model(solver='gurobi', tee = False, solver_options=solver_options) # solve model
+    rm_solved, results = rm.solve_model(solver='gurobi', tee = tee, solver_options=solver_options) # solve model
 
     # all_switch_indices = rm_solved.sectionalizing_switch_indices + rm_solved.tie_switch_indices + rm_solved.virtual_switch_indices
 
