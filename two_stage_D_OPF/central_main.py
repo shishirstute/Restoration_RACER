@@ -1,6 +1,7 @@
 from __future__ import annotations
 import os
 from ldrestoration import RestorationBase
+from ldrestoration.utils.plotnetwork import plot_solution_map
 from copy import deepcopy
 import networkx as nx
 import pandas as pd
@@ -10,7 +11,7 @@ from pyomo.opt import TerminationCondition
 from central_functions_list import *
 
 # parameters flag
-update_from_CLPU_flag = True
+update_from_CLPU_flag = False
 
 # parsed_data_path = r"C:\Users\shishir\OneDrive - Washington State University (email.wsu.edu)\made_by_me\Restoration_RACER\two_stage_D_OPF\Data\parsed_data_9500_der"
 # # parsed_data_path = r"C:\Users\shishir\OneDrive - Washington State University (email.wsu.edu)\made_by_me\Restoration_RACER\two_stage_D_OPF\Network_decomposition\results\parsed_data_9500_der\first_stage"
@@ -29,13 +30,14 @@ parsed_data_path = current_working_dir + f"/Data/{system_name}"
 # faults = [("d2000100_int","m2000200")]
 # faults = [("hvmv69s1s2_1","hvmv69s1s2_2")]
 # faults = [("hvmv115_hsb2","regxfmr_hvmv69sub1_lsb1")]
+# faults = [("l2916234","m1047423")]
 faults = []
 
 vmax=1.05
 vmin=0.95
-vsub_a = 1.03
-vsub_b = 1.03
-vsub_c = 1.03
+vsub_a = 1.01
+vsub_b = 1.01
+vsub_c = 1.01
 
 ### updating from CLPU model and doing sequential restoration
 
@@ -62,7 +64,7 @@ load_without_CLPU_list = [] # load list restored not including CLPU part
 load_with_CLPU_list = [] # load list including CLPU part.
 pick_up_variable_dict = {}
 relative_restoration_index = 0 # this is just keeping track of number of restoration index in
-for current_time_index in range(50, 51):
+for current_time_index in range(58, 59):
     relative_restoration_index += 1  # just for tracking how many steps of restoration is done
     if relative_restoration_index == 1:
         bus_index_outage_restore_dict = initialize_bus_index_outage_restore_dict(temp_parsed_data_path,\
@@ -135,3 +137,5 @@ for current_time_index in range(50, 51):
     print("voltage quality list", voltage_quality_measure_list)
     print("load without incorporating CLPU", load_without_CLPU_list)
     print("load with incorporating CLPU", load_with_CLPU_list)
+
+    plot_solution_map(rm_solved, rm.network_tree, rm.network_graph, background="white", save_plot = True)

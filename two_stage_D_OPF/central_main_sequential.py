@@ -13,6 +13,11 @@ from central_functions_list import *
 # parameters flag
 update_from_CLPU_flag = True # true means load is updated from CLPU
 first_solve_restoration_and_fix_switch = True # True means first solve restoration using steady state value and obtain topology like what we are doing in distributed.
+tie_switch_disable_flag = False # True means tie switches are disabled
+DERS_disabled_flag = False # True means DERs are disabled
+fix_restored_load_flag = True # True means previous restored load is fixed in the next iteration
+
+
 
 # parsed_data_path = r"C:\Users\shishir\OneDrive - Washington State University (email.wsu.edu)\made_by_me\Restoration_RACER\two_stage_D_OPF\Data\parsed_data_9500_der"
 # # parsed_data_path = r"C:\Users\shishir\OneDrive - Washington State University (email.wsu.edu)\made_by_me\Restoration_RACER\two_stage_D_OPF\Network_decomposition\results\parsed_data_9500_der\first_stage"
@@ -32,13 +37,23 @@ parsed_data_path = current_working_dir + f"/Data/{system_name}"
 # faults = [("hvmv69s1s2_1","hvmv69s1s2_2")]
 # faults = [("hvmv115_hsb2","regxfmr_hvmv69sub1_lsb1")]
 # faults = [("m2000902","d2000901_int")] # area 88 fault
-faults = []
+# faults = [("l2916234","m1047423")]
+# faults = [("hvmv115_hsb2","regxfmr_hvmv69sub1_lsb1")]
+# faults = [("l3030199","m1125934"), ("m1089162","m1089165"), ("m1125947","m1125944")] # multiple faults.
+# faults = [("m1026354","m2000100"), ("m3032981","m3032980")]  # For DERS islanding case, multiple faults.
+# faults = []
+# faults = [("m1108403","m1108406"), ("m1089188" ,"m1089189")] # fault in area 50 51 ("l3101788","l3101787") area 87
+faults = [("m1108403","m1108406")]
+
 
 vmax = 1.05
 vmin = 0.95
-vsub_a = 1.01
-vsub_b = 1.01
-vsub_c = 1.01
+vsub_a = 1.04
+vsub_b = 1.04
+vsub_c = 1.04
+psub_a_max = 6000
+psub_b_max = 6000
+psub_c_max = 6000
 
 ### updating from CLPU model and doing sequential restoration
 
@@ -62,7 +77,7 @@ if first_solve_restoration_and_fix_switch:
 
     rm.constraints_base(base_kV_LL=66.4,vmax=vmax,vmin=vmin, \
                         vsub_a = vsub_a, vsub_b = vsub_b, vsub_c = vsub_c, \
-                        psub_a_max=5000, psub_b_max=5000, psub_c_max=5000) # use psub_a, psub_b, psub_c
+                        psub_a_max=psub_a_max, psub_b_max=psub_b_max, psub_c_max=psub_c_max) # use psub_a, psub_b, psub_c
 
     # rm.objective_load_only()
     if system_name == "parsed_data_ieee123": # for 123 bus system which does n ot have DER
@@ -70,10 +85,20 @@ if first_solve_restoration_and_fix_switch:
     else:
         rm.objective_load_switching_and_der(beta = 0.4) # alpha, beta, gamma are parameters to it.beta = 0.2 is default
 
-    # rm_solved, results = rm.solve_model(solver='gurobi',save_results = True, solver_options = {"mipgap":0.00000000,"ScaleFlag":1})
-    rm_solved, results = rm.solve_model(solver='gurobi', save_results=True, solver_options={"ScaleFlag": 1})
+    # disable tie switch
+    if tie_switch_disable_flag:
+        for _ in rm.model.tie_switch_indices:
+            rm.model.xij[_].fix(0)
 
-    # once you obtain solution, keep the topology fixed.
+    # disable DERs
+    if DERS_disabled_flag:
+        for _ in rm.model.virtual_switch_indices:
+            rm.model.xij[_].fix(0)
+
+    # rm_solved, results = rm.solve_model(solver='gurobi',save_results = True, solver_options = {"mipgap":0.00000000,"ScaleFlag":1})
+    rm_solved, results = rm.solve_model(solver='gurobi', save_results=True, solver_options = {"mipgap":0.025/100,"ScaleFlag":1})
+
+    # once you obtain solution, keep the topology fixed, for that saving it in dictionary.
     sectionalizing_switch_decisions = {_: rm_solved.xij[_]() for _ in rm_solved.sectionalizing_switch_indices} # pyomo index: binary value
     tie_switch_decisions = {_: rm_solved.xij[_]() for _ in rm_solved.tie_switch_indices}
     virtual_switch_decisions = {_:rm_solved.xij[_]() for _ in rm_solved.virtual_switch_indices}
@@ -87,14 +112,17 @@ if first_solve_restoration_and_fix_switch:
     print("total load served with objective value ",rm_solved.restoration_objective())
 
 
-### sequential laod pick up start from here ###
+### sequential load pick up start from here ###
+vmax = 2 # just to simulate without considering CLPU condition.
+vmin = 0
 
 voltage_quality_measure_list = [] # voltage quality measure
+voltage_quality_measure_num_violation_list = [] # measures number of voltage violation nodes.
 load_without_CLPU_list = [] # load list restored not including CLPU part
 load_with_CLPU_list = [] # load list including CLPU part.
 pick_up_variable_dict = {}
 relative_restoration_index = 0 # this is just keeping track of number of restoration index in
-for current_time_index in range(50, 65):
+for current_time_index in range(60, 80):
     relative_restoration_index += 1  # just for tracking how many steps of restoration is done
     if relative_restoration_index == 1:
         bus_index_outage_restore_dict = initialize_bus_index_outage_restore_dict(temp_parsed_data_path,\
@@ -114,7 +142,7 @@ for current_time_index in range(50, 65):
 
     rm.constraints_base(base_kV_LL=66.4,vmax=vmax,vmin=vmin, \
                         vsub_a = vsub_a, vsub_b = vsub_b, vsub_c = vsub_c, \
-                        psub_a_max=5000, psub_b_max=5000, psub_c_max=5000) # use psub_a, psub_b, psub_c
+                        psub_a_max=psub_a_max, psub_b_max=psub_b_max, psub_c_max=psub_c_max) # use psub_a, psub_b, psub_c
 
     if first_solve_restoration_and_fix_switch: # if first solved for switching using steady value and fix topology
         for _ in sectionalizing_switch_decisions.keys():
@@ -139,15 +167,18 @@ for current_time_index in range(50, 65):
 
 
     # fixing the load restored in previous iteration
-    if pick_up_variable_dict:
-        rm = fix_restored_previous_load(rm = rm,  pick_up_variable_dict = pick_up_variable_dict)
+    if fix_restored_load_flag:
+        if pick_up_variable_dict:
+            rm = fix_restored_previous_load(rm = rm,  pick_up_variable_dict = pick_up_variable_dict)
 
     if  relative_restoration_index != 1:
         previous_model_solved = deepcopy(rm_solved)
     # rm_solved, results = rm.solve_model(solver='gurobi',save_results = True, solver_options = {"mipgap":0.00000000,"ScaleFlag":1})
-    rm_solved, results = rm.solve_model(solver='gurobi', save_results=True, solver_options={"ScaleFlag": 1})
+    rm_solved, results = rm.solve_model(solver='gurobi', save_results=True, solver_options={"ScaleFlag": 1, "mipgap": 0.035 / 100})
+
 
     if results.solver.termination_condition == TerminationCondition.infeasible:
+        print("relative restoration index", relative_restoration_index)
         rm_solved = previous_model_solved
 
     # keeping track of loads which are picked up
@@ -160,9 +191,12 @@ for current_time_index in range(50, 65):
     result_saving(temp_central_result_dir, rm, rm_solved)
 
     # measuring voltage quality
-    voltage_quality_measure = voltage_quality_assess(temp_central_result_dir, vmin)
+    voltage_quality_measure = voltage_quality_assess(temp_central_result_dir = temp_central_result_dir, vmin = vmin, vmax = vmax)
     voltage_quality_measure_list.append(voltage_quality_measure)
 
+    # measuring voltage quality based on violation of number of nodes voltage
+    voltage_quality_measure_num_violation, total_nodes = voltage_quality_assess_number_nodes_violate(temp_central_result_dir = temp_central_result_dir, vmin=vmin, vmax=vmax)
+    voltage_quality_measure_num_violation_list.append(voltage_quality_measure_num_violation)
     # restored load
 
     # power restored value
@@ -184,11 +218,12 @@ for current_time_index in range(50, 65):
 
     print("from post processing and printing list of voltage quality and load restrored")
     print("voltage quality list", voltage_quality_measure_list)
+    print("# nodes voltage violation list", voltage_quality_measure_num_violation_list)
     print("load without incorporating CLPU", load_without_CLPU_list)
     print("load with incorporating CLPU", load_with_CLPU_list)
 
-    plot_power_restored(load_without_CLPU_list, title="without CLPU part")
-    plot_power_restored(load_with_CLPU_list, title="with CLPU part")
+    plot_power_restored(load_without_CLPU_list)
+    # plot_power_restored(load_with_CLPU_list, title="with CLPU part")
 
     # plotting in map
     plot_solution_map(rm_solved, rm.network_tree, rm.network_graph, background="white", filename = f"power_flow_{relative_restoration_index}.html")

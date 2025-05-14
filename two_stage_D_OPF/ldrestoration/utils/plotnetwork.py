@@ -86,7 +86,7 @@ def plot_solution_map(model: ConcreteModel,
         # Create a folium map centered at a specific location within the system
         distribution_map = Map(location=[network_tree.nodes[next(iter(network_tree.nodes))]['lat'],
                                         network_tree.nodes[next(iter(network_tree.nodes))]['lon']],
-                            zoom_start=13,
+                            zoom_start=15,
                             max_zoom=100,
                             # crs="EPSG4326",
                             **kwargs)        

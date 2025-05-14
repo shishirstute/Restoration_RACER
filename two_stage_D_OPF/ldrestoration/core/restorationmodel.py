@@ -1325,13 +1325,13 @@ class RestorationModel:
             #         )
 
                 self.model.substation_positive_flow.add(
-                    self.model.Pija[edge_index] <= psub_a_max
+                    self.model.Pija[edge_index] <= self.model.psub_a_max
                 )
                 self.model.substation_positive_flow.add(
-                    self.model.Pijb[edge_index] <= psub_b_max
+                    self.model.Pijb[edge_index] <= self.model.psub_b_max
                 )
                 self.model.substation_positive_flow.add(
-                    self.model.Pijc[edge_index] <= psub_c_max
+                    self.model.Pijc[edge_index] <= self.model.psub_c_max
                 )
 
             # added by Shishir on 4/10/2025. If island is formed, ensure that power flowing from DER is within its capacity

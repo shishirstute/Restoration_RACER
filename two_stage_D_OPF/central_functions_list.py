@@ -36,7 +36,7 @@ def initialize_bus_index_outage_restore_dict(parsed_data_path, outaged_bus_list 
             bus_index_outage_restore_dict[bus] = {"outage_time_index": current_time_index, "restored_time_index": 0} # load is off
     else:
         for bus in load_df["bus"].to_list():
-            bus_index_outage_restore_dict[bus] = {"outage_time_index": 1, "restored_time_index": 0} # no outage happen, load is on
+            bus_index_outage_restore_dict[bus] = {"outage_time_index": 40, "restored_time_index": 0} # no outage happen, load is on
 
     return bus_index_outage_restore_dict # returning updated load data dict
 
@@ -170,8 +170,8 @@ def result_saving(temp_central_result_dir,rm, rm_solved):
     result_df.to_csv(os.path.join(temp_central_result_dir,"bus_result.csv"),index=False) # saving result df
 
 
-def voltage_quality_assess(temp_result_file_dir, vmin):
-    bus_result = pd.read_csv(os.path.join(temp_result_file_dir, "bus_result.csv"))
+def voltage_quality_assess(temp_central_result_dir, vmin, vmax):
+    bus_result = pd.read_csv(os.path.join(temp_central_result_dir, "bus_result.csv"))
     voltage_a = bus_result["Va"].to_list()
     voltage_a = [_ for _ in voltage_a if _ > vmin] # only greater than vmin bevcause for floating bus. voltage is by default vmin
     voltage_b = bus_result["Vb"].to_list()
@@ -180,6 +180,22 @@ def voltage_quality_assess(temp_result_file_dir, vmin):
     voltage_c = [_ for _ in voltage_c if _ > vmin]
     deviation_from_reference = ((sum(abs(np.array(voltage_a) - 1))) + (sum(abs(np.array(voltage_b) - 1))) + (sum(abs(np.array(voltage_c) - 1))))/(len(voltage_a) + len(voltage_b) + len(voltage_c))*100
     return deviation_from_reference
+
+def voltage_quality_assess_number_nodes_violate(temp_central_result_dir, vmin, vmax):
+    bus_result = pd.read_csv(os.path.join(temp_central_result_dir, "bus_result.csv"))
+    voltage_a = bus_result["Va"].to_list()
+    voltage_a = [_ for _ in voltage_a if _ > vmin] # only greater than vmin bevcause for floating bus. voltage is by default vmin
+    voltage_b = bus_result["Vb"].to_list()
+    voltage_b = [_ for _ in voltage_b if _ > vmin]
+    voltage_c = bus_result["Vc"].to_list()
+    voltage_c = [_ for _ in voltage_c if _ > vmin]
+    violated_voltage_a = [_ for _ in voltage_a if _ < 0.95 or _ >1.05]
+    violated_voltage_b = [_ for _ in voltage_b if _ < 0.95 or _ > 1.05]
+    violated_voltage_c = [_ for _ in voltage_c if _ < 0.95 or _ > 1.05]
+    total_nodes_violated = len(violated_voltage_a) + len(violated_voltage_b) + len(violated_voltage_c)
+    total_nodes_present = len(voltage_a) + len(voltage_b) + len(voltage_c)
+    return total_nodes_violated, total_nodes_present
+
 
 def calculate_restored_load(rm_solved, pick_up_variable_dict, original_load_data_dict):
     ''' calculate load restored in each restoration step'''
@@ -202,16 +218,18 @@ def calculate_restored_load(rm_solved, pick_up_variable_dict, original_load_data
             load_with_CLPU += (rm_solved.P1[pyomo_id]() +rm_solved.P2[pyomo_id]() + rm_solved.P3[pyomo_id]()) * pick_up_variable_dict[bus_id]
         # in model.P1, it is what we are taking as load. i.e. CLPU is reflected in this value
         elif (rm_solved.P1[pyomo_id]() +rm_solved.P2[pyomo_id]() + rm_solved.P3[pyomo_id]()  > 0) and (bus_id not in pick_up_variable_dict.keys()):
-            print(f"bus id not picked up {bus_id} with load {rm_solved.P1[pyomo_id]() +rm_solved.P2[pyomo_id]() + rm_solved.P3[pyomo_id]()}" )
+            # print(f"bus id not picked up {bus_id} with load {rm_solved.P1[pyomo_id]() +rm_solved.P2[pyomo_id]() + rm_solved.P3[pyomo_id]()}" )
+            pass
 
     return load_without_CLPU, load_with_CLPU
 
 
 def plot_power_restored( restored_load_list, title = None):
     ''' plots restored load wrt iteration'''
-    plt.figure(figsize=(7, 4))
+    plt.figure(figsize=(6, 4))
     plt.plot(restored_load_list)
-    plt.xlabel("#discrete time steps")
-    plt.ylabel("restored load")
+    plt.xlabel("load restoration steps")
+    plt.ylabel("restored load (kW)")
     plt.title(title)
+    plt.tight_layout()
     plt.show()

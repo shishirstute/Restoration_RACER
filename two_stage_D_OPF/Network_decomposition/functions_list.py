@@ -112,7 +112,7 @@ def plot_graph_plotly(bus_data_path, branch_data_path):
 # fault trace
     edge_x = []
     edge_y = []
-    fault_lines = [("d2000100_int","m2000200"),("hvmv69s1s2_1","hvmv69s1s2_2")]
+    fault_lines = []
     # fault_lines = []
     for _ in fault_lines:
         x0, y0 = nodes_dict_pos[_[0]]

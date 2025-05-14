@@ -22,7 +22,7 @@ class CLPULoadCalculator:
         k_duration: float = 0.01,
         Temp_amb: float = 28,
         interval_minutes: int = 15,
-        growth_per_step: float = 0.05,
+        growth_per_step: float = 0.1, # changed to 0.1 by shishir
     ):
         self.N_hvac, self.P_rated = N_hvac, P_rated
         self.diversity_factor, self.k_norm = diversity_factor, k_norm

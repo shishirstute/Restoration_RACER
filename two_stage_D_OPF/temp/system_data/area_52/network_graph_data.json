@@ -4,28 +4,47 @@
     "graph": {},
     "nodes": [
         {
-            "id": "area_51area_52"
+            "id": "area_1area_52"
         },
         {
             "id": "m1089-lng1"
+        },
+        {
+            "id": "area_52area_51"
         }
     ],
     "links": [
         {
-            "name": "area_51area_52_m1089-lng1",
+            "name": "area_1area_52_m1089-lng1",
             "element": "line",
             "length_unit": NaN,
             "z_matrix_real": "[[0.001, 0.0, 0.0], [0.0, 0.001, 0.0], [0.0, 0.0, 0.001]]",
             "z_matrix_imag": "[[0.001, 0.0, 0.0], [0.0, 0.001, 0.0], [0.0, 0.0, 0.001]]",
             "length": 0.001,
             "num_phases": 3,
-            "phases": "{'c', 'a', 'b'}",
+            "phases": "{'a', 'b', 'c'}",
             "is_switch": false,
             "is_open": false,
             "base_kv_LL": 12.47,
             "line_unit": 3.0,
-            "source": "area_51area_52",
+            "source": "area_1area_52",
             "target": "m1089-lng1"
+        },
+        {
+            "name": "m1089-lng1_area_52area_51",
+            "element": "line",
+            "length_unit": NaN,
+            "z_matrix_real": "[[0.001, 0.0, 0.0], [0.0, 0.001, 0.0], [0.0, 0.0, 0.001]]",
+            "z_matrix_imag": "[[0.001, 0.0, 0.0], [0.0, 0.001, 0.0], [0.0, 0.0, 0.001]]",
+            "length": 0.001,
+            "num_phases": 3,
+            "phases": "{'a', 'b', 'c'}",
+            "is_switch": false,
+            "is_open": false,
+            "base_kv_LL": 12.47,
+            "line_unit": 3.0,
+            "source": "m1089-lng1",
+            "target": "area_52area_51"
         }
     ]
 }

@@ -1,5 +1,6 @@
 from __future__ import annotations
 import os
+from collections import defaultdict
 from ldrestoration import RestorationBase
 from copy import deepcopy
 import networkx as nx
@@ -25,16 +26,20 @@ def faults_line_to_area_mapping( areas_data_file_path, faults_list):
             fault_related_area_list.append(area)
 
     faults_area_tuple_pair = [] # tuple of area pair that needs to be isolated from each other to clear fault
+    tie_switch_not_to_operate = [] # don't switch on this tie switch as it has to isolate fault.
 
     for index, row in pd.read_csv(os.path.join(areas_data_file_path, "first_stage", "pdelements_data.csv")).iterrows():
         if row["from_bus"] in fault_related_area_list or row["to_bus"] in fault_related_area_list:
+            # commented by shishir on 5/5/2025 to deal with error as tie switch connected areas are not taken as neighbor area.
             if row["is_open"] == False: # this assumes that no fault occurs at tie switch, correct this later please to make more general
                 faults_area_tuple_pair.append((row["from_bus"], row["to_bus"]))
+            else:
+                tie_switch_not_to_operate.append((row["from_bus"], row["to_bus"]))
+    return faults_area_tuple_pair, fault_related_area_list, tie_switch_not_to_operate
 
-    return faults_area_tuple_pair, fault_related_area_list
 
-
-def first_stage_restoration(parsed_data_path, faults, temp_result_file_dir, objective_function_index = 1,solver_options = None, psub_a_max = 5000, psub_b_max = 5000, psub_c_max = 5000, tee = False):
+def first_stage_restoration(parsed_data_path, faults, temp_result_file_dir, objective_function_index = 1,solver_options = None, psub_a_max = 5000, psub_b_max = 5000, psub_c_max = 5000, tie_switch_not_to_operate = [], tee = False,\
+                            get_area_substation_limit_flag = False, tie_switch_disabled_flag = False, DER_disabled_flag = False):
     ''' implements the first stage restoration, takes data, fault information and return parent child relation dictionary'''
 
     rm = RestorationBase(parsed_data_path, faults=faults, base_kV_LL=4.16) # for baseKv you can put anything since voltage does not matter that much as line are switches
@@ -50,6 +55,19 @@ def first_stage_restoration(parsed_data_path, faults, temp_result_file_dir, obje
         rm.objective_load_and_switching()
     else:
         rm.objective_load_switching_and_der() # same as 2 but with DERS present
+
+    # keep this tie switch open, it is tyo deal with how Abodh ahs assumed while modeling. He has assumed that no fault occurs at tie switch.
+    for pair in tie_switch_not_to_operate:
+        edge_index = rm.model.edge_indices_in_tree[pair]
+        rm.model.xij[edge_index].fix(0)
+
+    if tie_switch_disabled_flag == True:
+        for _ in rm.model.tie_switch_indices:
+            rm.model.xij[_].fix(0)
+
+    if DER_disabled_flag == True:
+        for _ in rm.model.virtual_switch_indices:
+            rm.model.xij[_].fix(0)
 
     rm_solved, results = rm.solve_model(solver='gurobi', tee = tee, solver_options=solver_options) # solve model
 
@@ -108,6 +126,41 @@ def first_stage_restoration(parsed_data_path, faults, temp_result_file_dir, obje
 
     parent_child_area_df = pd.DataFrame(parent_child_dict).T
 
+    # required when limit power is required to each area, useful incase of island formation, addded on 5/9/2025
+
+    G = nx.DiGraph()
+    for area, relation in parent_child_dict.items():
+        for child in relation.get("children", []):
+            G.add_edge(area, child)
+    def is_descendant_from_list(G, source_areas, target_area): # returns True is target area is descendent of areas present in list., addded on 5/9/2025
+        for src in source_areas:
+            if target_area in nx.descendants(G, src):
+                return True
+        return False
+
+    area_substation_limit_power = {}
+    if get_area_substation_limit_flag: # it is required when there is formation of island as DERs power need to be limited. To deal with D-OPF algorithm, it is used.
+        for area in parent_child_dict.keys():
+            if is_descendant_from_list(G, list(DERs_area_activated_dict.keys()), area):
+                if parent_child_dict[area]['parent'] is not None:
+                    parent_area = parent_child_dict[area]['parent']
+                    area_substation_limit_power[area] = {"Pa":0, "Pb":0, "Pc":0}
+                    try:
+                        Pa = abs(rm_solved.Pija[rm_solved.edge_indices_in_tree[(area, parent_area)]]())
+                        Pb = abs(rm_solved.Pijb[rm_solved.edge_indices_in_tree[(area, parent_area)]]())
+                        Pc = abs(rm_solved.Pijc[rm_solved.edge_indices_in_tree[(area, parent_area)]]())
+                    except:
+                        Pa = abs(rm_solved.Pija[rm_solved.edge_indices_in_tree[(parent_area, area)]]())
+                        Pb = abs(rm_solved.Pijb[rm_solved.edge_indices_in_tree[(parent_area, area)]]())
+                        Pc = abs(rm_solved.Pijc[rm_solved.edge_indices_in_tree[(parent_area, area)]]())
+                    if Pa > 0:
+                        area_substation_limit_power[area]["Pa"] = Pa
+                    if Pb >0:
+                        area_substation_limit_power[area]["Pb"] = Pb
+                    if Pc>0:
+                        area_substation_limit_power[area]["Pc"] = Pc
+
+
     # current_dir = os.getcwd()
     # file_path_name = os.path.normpath(os.path.join(current_dir + "/result_areas_parent", "area_2_area_3_7820kW_7_virtual_switch_tie_section.csv"))
 
@@ -121,7 +174,8 @@ def first_stage_restoration(parsed_data_path, faults, temp_result_file_dir, obje
 
     print("total load served in first stage", rm_solved.restoration_objective())
 
-    return parent_child_dict, DERs_area_activated_dict  # return parent_child relationship
+
+    return parent_child_dict, DERs_area_activated_dict, area_substation_limit_power, G, rm_solved  # here G is directed graph of model which shows parent child relation between areas
 
 
 
@@ -154,6 +208,7 @@ def enapp_preprocessing_for_second_stage(areas_data_file_path, original_parsed_d
     non_decomposed_pdelements_df = pd.read_csv(original_parsed_data_path + "\pdelements_data.csv") # pdelements of original non-decomposed pdelements data
 
     for area_index in parent_child_area_dict.keys(): # iterating over each area
+        time.sleep(0.5)
         # print(area_index)
         area_index_data_path = os.path.join(temp_dir,"system_data",area_index) # corresponding area file path directory
         # reading data for current area
@@ -171,6 +226,7 @@ def enapp_preprocessing_for_second_stage(areas_data_file_path, original_parsed_d
             for _ in [parent_area]:
                 # read parent area data
                 area_index_data_path_p = os.path.join(temp_dir, "system_data", _)
+                time.sleep(0.5)
                 bus_data_p = pd.read_csv(os.path.join(area_index_data_path_p, "bus_data.csv"))
                 load_data_p = pd.read_csv(os.path.join(area_index_data_path_p, "load_data.csv"))
                 pdelements_data_p = pd.read_csv(os.path.join(area_index_data_path_p, "pdelements_data.csv"))
@@ -214,6 +270,7 @@ def enapp_preprocessing_for_second_stage(areas_data_file_path, original_parsed_d
                 last_row["is_open"] = "False"
                 last_row["base_kv_LL"] = 12.47 # note this, this is assumption, make it generic
                 pdelements_data_p = pd.concat([pdelements_data_p, pd.DataFrame([last_row])], ignore_index=True)
+                time.sleep(0.5)
                 pdelements_data_p.to_csv(os.path.join(area_index_data_path_p, "pdelements_data.csv"),index = False)
 
                 # changing data for current area
@@ -228,6 +285,7 @@ def enapp_preprocessing_for_second_stage(areas_data_file_path, original_parsed_d
                 last_row = load_data.iloc[-1].copy()
                 last_row["bus"], last_row["P1"], last_row["Q1"], last_row["P2"], last_row["Q2"], last_row["P3"], last_row["Q3"] = dummy_bus_name, 0, 0, 0, 0, 0, 0
                 load_data = pd.concat([load_data, pd.DataFrame([last_row])], ignore_index=True)
+                time.sleep(0.5)
                 load_data.to_csv(os.path.join(area_index_data_path, "load_data.csv"), index = False)
 
                 # pdelements data
@@ -253,6 +311,7 @@ def enapp_preprocessing_for_second_stage(areas_data_file_path, original_parsed_d
                 circuit_data_json["substation"] = dummy_bus_name  # substation name will be dummpy bus for other areas except area with original substation
                 circuit_data_json["basekV_LL_circuit"] = bus_data["basekV"][0]
                 json_object = json.dumps(circuit_data_json, indent=4)
+                time.sleep(0.5)
                 with open(area_index_data_path + r"/circuit_data.json", 'w') as circuit_data_file:
                     circuit_data_file.write(json_object)
 
@@ -261,6 +320,7 @@ def enapp_preprocessing_for_second_stage(areas_data_file_path, original_parsed_d
     # also generating tree topology and graph topology of updated areas file
     for area_index in parent_child_area_dict.keys():
         area_index_data_path = os.path.join(temp_dir, "system_data", area_index)
+        time.sleep(0.5)
         bus_data = pd.read_csv(os.path.join(area_index_data_path, "bus_data.csv"))
         # DERS = pd.read_csv(os.path.join(area_index_data_path, "DERS.csv"))
         # load_data = pd.read_csv(os.path.join(area_index_data_path, "load_data.csv"))
@@ -293,6 +353,7 @@ def enapp_preprocessing_for_second_stage(areas_data_file_path, original_parsed_d
         # getting network_tree_data.json
         network_tree_data_json = nx.node_link_data(G) # returns json data for area
         network_tree_json_object = json.dumps(network_tree_data_json, indent = 4)
+        time.sleep(0.5)
         with open(area_index_data_path + r"\network_tree_data.json", 'w') as json_file: # saving to json file
             json_file.write(network_tree_json_object)
 
@@ -301,15 +362,20 @@ def enapp_preprocessing_for_second_stage(areas_data_file_path, original_parsed_d
         # since in Lindist, data is fetched using index from json, it won't be problem if I add extra other attributes
         network_graph_data_json = nx.node_link_data(G.to_undirected())
         network_graph_json_object = json.dumps(network_graph_data_json, indent=4)
+        time.sleep(0.5)
         with open(area_index_data_path + r"\network_graph_data.json", 'w') as json_file: # saving to json file
             json_file.write(network_graph_json_object)
+
+        time.sleep(0.5)
 
 
 
 
 class Area:  # area class for each area of second stage
-    def __init__(self, area_index = None, area_dir = None, parent_child_dict = None,DERs_area_activated_dict = None, substation_Va = None, substation_Vb = None, substation_Vc = None): # area_index is area_1 and soon. area_dir is data path of updated area (i.e. after adding dummy bus based on parent child relation)
+    def __init__(self, area_index = None, area_dir = None, parent_child_dict = None,DERs_area_activated_dict = None, substation_Va = None,\
+                 substation_Vb = None, substation_Vc = None): # area_index is area_1 and soon. area_dir is data path of updated area (i.e. after adding dummy bus based on parent child relation)
 
+        self.area_name = area_index
         self.circuit_data_json = json.load(open(os.path.join(area_dir, "circuit_data.json"))) # circuit data
         self.substation_name = self.circuit_data_json["substation"] # substation name for given area
         self.parent = parent_child_dict[area_index]["parent"] # parent area name
@@ -331,6 +397,9 @@ class Area:  # area class for each area of second stage
         self.substation_Qa = 0
         self.substation_Qb = 0
         self.substation_Qc = 0
+        self.Pa_limit = 5000 # limiting power from parent area, added on 5/10/2025, change this number later based on system.
+        self.Pb_limit = 5000 # limiting power from parent area, added on 5/10/2025
+        self.Pc_limit = 5000 # limiting power from parent area, added on 5/10/2025
 
         # required during convergence test
         self.substation_Va_pre = 10
@@ -370,8 +439,15 @@ class Area:  # area class for each area of second stage
             setattr(self, f"{_}_Vb",substation_Vb)
             setattr(self, f"{_}_Vc",substation_Vc)
 
+            # initializing limiting power to children areas, added on 5/10/2025
+            setattr(self, f"{_}_Pa_limit", 5000)  # assigning voltage to shared bus child areas, change this 5000 for other sytem.
+            setattr(self, f"{_}_Pb_limit", 5000)
+            setattr(self, f"{_}_Pc_limit", 5000)
 
-    def second_stage_area_solve(self,tee, vmin, vmax, objective_function_index = 2):
+
+    def second_stage_area_solve(self,tee, vmin, vmax, get_area_substation_limit_flag = False, area_substation_limit_power = None,\
+                                objective_function_index = 2, iteration = None, parent_child_limit_power_flag = False,\
+                                iteration_to_enforce_limit = None):
         ''' will solve for opf for given area'''
 
         parsed_data_path = self.file_dir # data path file
@@ -383,6 +459,19 @@ class Area:  # area class for each area of second stage
         psub_a_max = 5000
         psub_b_max = 5000
         psub_c_max = 5000
+
+        if get_area_substation_limit_flag: # if this flag is 1, then area limit power should be enforced.
+            if self.area_name in area_substation_limit_power.keys():
+                psub_a_max = area_substation_limit_power[self.area_name]["Pa"]
+                psub_b_max = area_substation_limit_power[self.area_name]["Pb"]
+                psub_c_max = area_substation_limit_power[self.area_name]["Pc"]
+
+            # added on 5/10/2025 to deal with error as extra loads are picked up., +1 is added as in next iteration after updating value of limit, restoration should be done.
+            if iteration > iteration_to_enforce_limit+1 and parent_child_limit_power_flag == True:
+                psub_a_max = self.Pa_limit
+                psub_b_max = self.Pb_limit
+                psub_c_max = self.Pc_limit
+
         DER_rating_constr_flag = False # DER rating constraint won't be enforce if no island is formed.
         DER_p_max = 0 # rating is made to 0.
         if self.grid_formed: # if self grid is formed, psub_a_ma and b, c can be relaxed as der rating constraint will come into picture.
@@ -410,7 +499,7 @@ class Area:  # area class for each area of second stage
         self.rm = rm
 
 
-    def update_boundary_variables_after_opf(self):
+    def update_boundary_variables_after_opf(self, iteration = None, parent_child_limit_power_flag = False, iteration_to_enforce_limit = None):
         ''' updating shared bus power and voltage information within each area'''
 
         solved_model = self.solved_model # getting solved model
@@ -438,7 +527,17 @@ class Area:  # area class for each area of second stage
             setattr(self, f"{_}_Vb", np.sqrt(solved_model.Vib[solved_model_child_bus_index]()))
             setattr(self, f"{_}_Vc", np.sqrt(solved_model.Vic[solved_model_child_bus_index]()))
 
-    def boundary_variables_exchange(self,parent_area_object, update_model_flag = False):
+            if iteration>iteration_to_enforce_limit:
+                # if solved_model.si[solved_model_child_bus_index]() < 1:
+                if parent_child_limit_power_flag == True: # adding limit power from parent area to each child area.
+                    setattr(self, f"{_}_Pa_limit", solved_model.P1[solved_model_child_bus_index]()*solved_model.si[solved_model_child_bus_index]())
+                    setattr(self, f"{_}_Pb_limit", solved_model.P2[solved_model_child_bus_index]()*solved_model.si[solved_model_child_bus_index]())
+                    setattr(self, f"{_}_Pc_limit", solved_model.P3[solved_model_child_bus_index]()*solved_model.si[solved_model_child_bus_index]())
+
+
+
+    def boundary_variables_exchange(self,parent_area_object, update_model_flag = False, iteration = None, parent_child_limit_power_flag = False,\
+                                    iteration_to_enforce_limit = None):
         ''' now updating boundary voltage of given area from its parent area. also updating power of substation from given area to its parent area'''
 
         # self_area_load_df = pd.read_csv(os.path.join(self.file_dir,"load_data.csv"))
@@ -449,6 +548,12 @@ class Area:  # area class for each area of second stage
         self.substation_Vb = getattr(parent_area_object, f"{shared_bus}_Vb")
         self.substation_Vc = getattr(parent_area_object, f"{shared_bus}_Vc")
         time.sleep(0.5) # 0.1 ms sleep to deal with file open/close error
+
+        if iteration > iteration_to_enforce_limit:
+            if parent_child_limit_power_flag == True:
+                self.Pa_limit = getattr(parent_area_object,f"{shared_bus}_Pa_limit")
+                self.Pb_limit = getattr(parent_area_object, f"{shared_bus}_Pb_limit")
+                self.Pc_limit = getattr(parent_area_object, f"{shared_bus}_Pc_limit")
 
 
 
@@ -466,6 +571,13 @@ class Area:  # area class for each area of second stage
             parent_area_object.rm.model.Q2[pyomo_index_in_parent_area].set_value(self.substation_Qb)
             parent_area_object.rm.model.P3[pyomo_index_in_parent_area].set_value(self.substation_Pc)
             parent_area_object.rm.model.Q3[pyomo_index_in_parent_area].set_value(self.substation_Qc)
+
+            # updating power limit from substation
+            if iteration > iteration_to_enforce_limit:
+                if parent_child_limit_power_flag == True:
+                    self.rm.model.psub_a_max.set_value(self.Pa_limit)
+                    self.rm.model.psub_b_max.set_value(self.Pb_limit)
+                    self.rm.model.psub_c_max.set_value(self.Pc_limit)
 
             return self.rm, parent_area_object.rm # returning rm class
         else:
@@ -500,8 +612,6 @@ class Area:  # area class for each area of second stage
         if iteration >= 5: # do only after 5 iterations
             if self.substation_Pa_pre > self.substation_Pa: # if previous value is greater than current value, then chance of oscillation
                 self.substation_Pa = self.substation_Pa_pre *0.5 + self.substation_Pa *0.5
-
-
 
     def convergence_test(self):
         ''' find maximum error for given area considering subsequence differences in shared variables'''
@@ -558,15 +668,16 @@ def result_saving(temp_result_file_dir,area_object_list):
     result_df = pd.DataFrame(columns = ["bus name", "si","vi", "Va","Vb","Vc","Load_served_flag","total P load"]) # si is load pickup variable, vi is bus energization variable
     for key in area_object_list.keys():
         for _ in area_object_list[key].solved_model.node_indices_in_tree.keys():
-            bus_result_dict = {"bus name":_, "si":area_object_list[key].solved_model.si[area_object_list[key].solved_model.node_indices_in_tree[_]](),
-                               "vi": area_object_list[key].solved_model.vi[area_object_list[key].solved_model.node_indices_in_tree[_]](),
-                               "Va":np.sqrt(area_object_list[key].solved_model.Via[area_object_list[key].solved_model.node_indices_in_tree[_]]()),
-                               "Vb":np.sqrt(area_object_list[key].solved_model.Vib[area_object_list[key].solved_model.node_indices_in_tree[_]]()),
-                               "Vc":np.sqrt(area_object_list[key].solved_model.Vic[area_object_list[key].solved_model.node_indices_in_tree[_]]()),
-                               "Load_served_flag":  0 if area_object_list[key].loads.loc[area_object_list[key].loads["bus"] == _,["P1","P2","P3"]].sum(axis = 1).values[0] > 0 and area_object_list[key].loads.loc[area_object_list[key].loads["bus"] == _,["P1","P2","P3"]].sum(axis = 1).values[0]*area_object_list[key].solved_model.si[area_object_list[key].solved_model.node_indices_in_tree[_]]() == 0 else 1,
-                               "total P load":area_object_list[key].loads.loc[area_object_list[key].loads["bus"] == _,["P1","P2","P3"]].sum(axis = 1).values[0]}
+            if "area" not in _:
+                bus_result_dict = {"bus name":_, "si":area_object_list[key].solved_model.si[area_object_list[key].solved_model.node_indices_in_tree[_]](),
+                                   "vi": area_object_list[key].solved_model.vi[area_object_list[key].solved_model.node_indices_in_tree[_]](),
+                                   "Va":np.sqrt(area_object_list[key].solved_model.Via[area_object_list[key].solved_model.node_indices_in_tree[_]]()),
+                                   "Vb":np.sqrt(area_object_list[key].solved_model.Vib[area_object_list[key].solved_model.node_indices_in_tree[_]]()),
+                                   "Vc":np.sqrt(area_object_list[key].solved_model.Vic[area_object_list[key].solved_model.node_indices_in_tree[_]]()),
+                                   "Load_served_flag":  0 if area_object_list[key].loads.loc[area_object_list[key].loads["bus"] == _,["P1","P2","P3"]].sum(axis = 1).values[0] > 0 and area_object_list[key].loads.loc[area_object_list[key].loads["bus"] == _,["P1","P2","P3"]].sum(axis = 1).values[0]*area_object_list[key].solved_model.si[area_object_list[key].solved_model.node_indices_in_tree[_]]() == 0 else 1,
+                                   "total P load":area_object_list[key].loads.loc[area_object_list[key].loads["bus"] == _,["P1","P2","P3"]].sum(axis = 1).values[0]}
 
-            result_df = pd.concat([result_df, pd.DataFrame(bus_result_dict, index = [0])], axis = 0, ignore_index = True)
+                result_df = pd.concat([result_df, pd.DataFrame(bus_result_dict, index = [0])], axis = 0, ignore_index = True)
 
     result_df.to_csv(os.path.join(temp_result_file_dir,"bus_result.csv"),index=False) # saving result df
 
@@ -583,18 +694,37 @@ def excel_writing_boundary_solutions(area_object_list, temp_result_file_dir):
 
 def voltage_quality_assess(temp_result_file_dir, vmin):
     bus_result = pd.read_csv(os.path.join(temp_result_file_dir, "bus_result.csv"))
-    voltage_a = bus_result["Va"].to_list()
+    voltage_a = bus_result["Va"].astype(float).to_list()
     voltage_a = [_ for _ in voltage_a if _ > vmin] # only greater than vmin bevcause for floating bus. voltage is by default vmin
-    voltage_b = bus_result["Vb"].to_list()
+    voltage_b = bus_result["Vb"].astype(float).to_list()
     voltage_b = [_ for _ in voltage_b if _ > vmin]
-    voltage_c = bus_result["Vc"].to_list()
+    voltage_c = bus_result["Vc"].astype(float).to_list()
     voltage_c = [_ for _ in voltage_c if _ > vmin]
     deviation_from_reference = ((sum(abs(np.array(voltage_a) - 1))) + (sum(abs(np.array(voltage_b) - 1))) + (sum(abs(np.array(voltage_c) - 1))))/(len(voltage_a) + len(voltage_b) + len(voltage_c))*100
     return deviation_from_reference
 
+
+
+def voltage_quality_assess_number_nodes_violate(temp_result_file_dir, vmin, vmax):
+    bus_result = pd.read_csv(os.path.join(temp_result_file_dir, "bus_result.csv"))
+    voltage_a = bus_result["Va"].astype(float).to_list()
+    voltage_a = [_ for _ in voltage_a if _ > vmin]  # only greater than vmin bevcause for floating bus. voltage is by default vmin
+    voltage_b = bus_result["Vb"].astype(float).to_list()
+    voltage_b = [_ for _ in voltage_b if _ > vmin]
+    voltage_c = bus_result["Vc"].astype(float).to_list()
+    voltage_c = [_ for _ in voltage_c if _ > vmin]
+    violated_voltage_a = [_ for _ in voltage_a if _ < 0.95 or _ >1.05]
+    violated_voltage_b = [_ for _ in voltage_b if _ < 0.95 or _ > 1.05]
+    violated_voltage_c = [_ for _ in voltage_c if _ < 0.95 or _ > 1.05]
+    total_nodes_violated = len(violated_voltage_a) + len(violated_voltage_b) + len(violated_voltage_c)
+    total_nodes_present = len(voltage_a) + len(voltage_b) + len(voltage_c)
+    return total_nodes_violated, total_nodes_present
+
+
+
 def track_pick_up_load(area_object_list):
     ''' will store pick up load if picked up in previous restoration step'''
-    pick_up_variable_dict = {} # {area_index:{bus_index: binary}}
+    pick_up_variable_dict = {} # {area_index:{bus_index: binary}}, contains only buses of each area whose status is 1 for load pick up
     all_bus_index_pick_up_status_dict = {} #required for Rafy's input, {bus_index: status}
     for key in area_object_list.keys():
         # area_index = key.rstrip("_o") # area index
@@ -636,6 +766,8 @@ def calculate_restored_load(area_object_list, pick_up_variable_dict, original_lo
     ''' calculate load restored in each restoration step'''
     restored_load_with_out_CLPU = [] # list of restored load for each area without CLPU consideration
     restored_load_with_CLPU = [] # list of restored load for each area with CLPU consideration
+    area_solved_load_values_without_CLPU_second_stage = defaultdict()
+    area_solved_load_values_with_CLPU_second_stage = defaultdict()
     for key in area_object_list.keys(): # iteration over areas
         load_without_CLPU = 0
         load_with_CLPU = 0
@@ -644,7 +776,6 @@ def calculate_restored_load(area_object_list, pick_up_variable_dict, original_lo
         #     pyomo_id = area_object_list[key].rm.model.node_indices_in_tree[bus_id]
         #     load += area_object_list[key].rm.model.active_demand_each_node[pyomo_id] * pick_up_variable_dict[key][bus_id]
         # load present in given bus of given area restored
-
         # just for debugging
         for pyomo_id in area_object_list[key].rm.model.node_indices_in_tree.values():
             bus_id = next((key for key, val in area_object_list[key].rm.model.node_indices_in_tree.items() if val == pyomo_id), None)
@@ -656,10 +787,12 @@ def calculate_restored_load(area_object_list, pick_up_variable_dict, original_lo
 
             elif (area_object_list[key].rm.model.P1[pyomo_id]()+area_object_list[key].rm.model.P2[pyomo_id]()+area_object_list[key].rm.model.P3[pyomo_id]()) > 0 and bus_id not in pick_up_variable_dict[key].keys():
                 print(f"bus id not picked up {bus_id} with load {area_object_list[key].rm.model.P1[pyomo_id]()+area_object_list[key].rm.model.P2[pyomo_id]()+area_object_list[key].rm.model.P3[pyomo_id]()}" )
+        area_solved_load_values_with_CLPU_second_stage[key] = load_with_CLPU
+        area_solved_load_values_without_CLPU_second_stage[key] = load_without_CLPU
         restored_load_with_out_CLPU.append(load_without_CLPU)
         restored_load_with_CLPU.append(load_with_CLPU)
 
-    return sum(restored_load_with_out_CLPU), sum(restored_load_with_CLPU) # return restored laod for this restoration period
+    return sum(restored_load_with_out_CLPU), sum(restored_load_with_CLPU),area_solved_load_values_without_CLPU_second_stage, area_solved_load_values_with_CLPU_second_stage  # return restored laod for this restoration period
 
 
 def fix_restored_previous_load(rm,  pick_up_variable_dict):
@@ -683,7 +816,7 @@ def initialize_bus_index_outage_restore_dict(area_object_list, areas_data_file_p
                 bus_index_outage_restore_dict[bus] = {"outage_time_index": current_time_index, "restored_time_index": 0} # load is off
         else:
             for bus in load_df["bus"].to_list():
-                bus_index_outage_restore_dict[bus] = {"outage_time_index": 1, "restored_time_index": 0} # no outage happen, load is on
+                bus_index_outage_restore_dict[bus] = {"outage_time_index": 40, "restored_time_index": 0} # no outage happen, load is on
 
     return bus_index_outage_restore_dict # returning updated load data dict
 
@@ -751,9 +884,10 @@ def plot_voltage_quality( voltage_quality_measure_list):
 
 def plot_power_restored( restored_load_list, title = None):
     ''' plots restored load wrt iteration'''
-    plt.figure(figsize=(7, 4))
+    plt.figure(figsize=(6, 4))
     plt.plot(restored_load_list)
-    plt.xlabel("#discrete time steps")
-    plt.ylabel("restored load")
+    plt.xlabel("load restoration steps")
+    plt.ylabel("restored load (kW)")
     plt.title(title)
+    plt.tight_layout()
     plt.show()

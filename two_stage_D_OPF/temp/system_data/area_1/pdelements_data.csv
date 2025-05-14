@@ -1,3 +1,4 @@
 name,element,length_unit,z_matrix_real,z_matrix_imag,length,from_bus,to_bus,num_phases,phases,is_switch,is_open,base_kv_LL,line_unit
 hvmv_sub_hsb,reactor,0.0,"[[0.001, 0, 0], [0, 0.001, 0], [0, 0, 0.001]]","[[0.001, 0, 0], [0, 0.001, 0], [0, 0, 0.001]]",0.001,sourcebus,hvmv115_hsb1,3,"{'b', 'c', 'a'}",False,False,115.0,
-hvmv115_hsb1_area_1area_2,line,,"[[0.001, 0.0, 0.0], [0.0, 0.001, 0.0], [0.0, 0.0, 0.001]]","[[0.001, 0.0, 0.0], [0.0, 0.001, 0.0], [0.0, 0.0, 0.001]]",0.001,hvmv115_hsb1,area_1area_2,3,"{'c', 'a', 'b'}",False,False,12.47,3.0
+hvmv115_hsb1_area_1area_2,line,,"[[0.001, 0.0, 0.0], [0.0, 0.001, 0.0], [0.0, 0.0, 0.001]]","[[0.001, 0.0, 0.0], [0.0, 0.001, 0.0], [0.0, 0.0, 0.001]]",0.001,hvmv115_hsb1,area_1area_2,3,"{'a', 'b', 'c'}",False,False,12.47,3.0
+sourcebus_area_1area_52,line,,"[[0.001, 0.0, 0.0], [0.0, 0.001, 0.0], [0.0, 0.0, 0.001]]","[[0.001, 0.0, 0.0], [0.0, 0.001, 0.0], [0.0, 0.0, 0.001]]",0.001,sourcebus,area_1area_52,3,"{'a', 'b', 'c'}",False,False,12.47,3.0
